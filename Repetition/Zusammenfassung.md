@@ -425,19 +425,115 @@ for (int i = 1; i < 70; ++i) {
 ```
 ## Ein- und Ausgabe
 
-Datenstruktur mit gleichartigen Elementen.
+#include \<iostream>
 
-Beispiel Vektor, String (enthält Chars)
+cin Standardeingabe (Tastatur, gepuffert)
+cout Standardausgabe (Bildschirm, gepuffert)
+cerr Standardfehlerausgabe (Bildschirm, nicht gepuffert)
+clog Standardfehlerausgabe (Bildschirm, gepuffert)
 
-Size_t zur Iteration verwended!
+Wenn mit Leerzeichen `getline(cin, input)` verwenden.
+
+Die Ein- und Ausgabeoperatoren >> und << sind bei Dateien ebenso wie bei der Standardein- und -ausgabe verwendbar. Für die Funktion get() zur Eingabe eines Zeichens gibt
+es das Gegenstück put() zur Ausgabe eines Zeichens. Der Header <fstream> enthält die
+vom Compiler verlangten Beschreibungen für Dateiobjekte. Die benutzten Funktionen
+get(), put(), open() und close() und weitere nutzen die Dateifunktionen des zugrundeliegenden Betriebssystems. 
+
+**Ablauf:**
+* Dateiobjekt als Filestream definieren (ifstream oder ofstream)
+* Verbindung zur Datei mit open()
+* Do Stuff
+* Verbindung mit close() wieder schliessen
+
 ```cpp
-for (size_t i = 0; i < einVektor.size(); ++i) {
-cout << einVektor[i] << ’\n’;
-}
+ifstream datei;
+datei.open("dateiname.txt");
+// ist dasselbe wie
+ifstream datei("dateiname.txt");
+```
+**Schreiben und Lesen Textdatei**
+
+
+```cpp
+#include <fstream>
+#include <iostream>
+#include <string>
+using namespace std;
+int main() {
+	string dateiname {"unbekannt"};
+	cout << "Dateiname? ";
+	getline(cin, dateiname);
+	// Datei schreiben
+	ofstream datei(dateiname); // Objekt für Ausgabestrom
+	if (!datei.good()) { // Fehlerabfrage
+		cerr << dateiname << " kann nicht beschrieben werden! Programmabbruch!\n";
+		return 1;
+	}
+	else {
+		datei << "geschriebener Text.\nZweite Zeile!\n";
+		datei.close(); // Schließen der Datei, damit sie gelesen werden kann
+	}
+	// Lesen derselben Datei und Anzeige der Zeilen
+	ifstream quelle(dateiname); // Objekt für Eingabestrom
+	cout << "Der Inhalt von " << dateiname << " ist:\n";
+	while (quelle.good()) {
+		string zeile;
+		getline(quelle, zeile); // Zeile lesen
+		cout << zeile << ’\n’;
+	}
+} // Datei wird am Programmende automatisch geschlossen.
+```
+**Kopieren von Dateien**
+
+```cpp
+#include <cstdlib> // für exit()
+#include <fstream>
+#include <iostream>
+#include <string>
+using namespace std;
+int main() {
+	string dateiname {"unbekannt"};
+	cout << "Quelldatei? ";
+	cin >> dateiname;
+	ifstream quelle(dateiname, ios::binary); // Objekt für die Eingangsdatei
+						// Zu ios::binary siehe Text unten
+	if (!quelle.good()) { // Fehlerabfrage
+		cerr << dateiname << " kann nicht geöffnet werden!\n";
+		exit(-1);
+	}
+
+	cout << "Zieldatei? ";
+	cin >> dateiname; // ohne Leerzeichen!
+	ofstream ziel(dateiname, ios::binary); // Definieren und Öffnen der Ausgabedatei
+	if (!ziel.good()) { // Fehlerabfrage
+		cerr << dateiname << " kann nicht geöffnet werden!\n";
+		exit(-1);
+	}
+
+	char ch {’?’};
+	while (quelle.get(ch)) {
+		ziel.put(ch); // zeichenweise kopieren
+	}
+} // Dateien werden am Programmende automatisch geschlossen.
+
+
+
 ```
 
-```cpp
-```
 
 ```cpp
+
+
+```
+
+
+```cpp
+
+
+```
+
+
+```cpp
+
+
 ```
