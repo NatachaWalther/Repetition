@@ -434,7 +434,6 @@ Size_t zur Iteration verwended!
 for (size_t i = 0; i < einVektor.size(); ++i) {
 cout << einVektor[i] << ’\n’;
 }
-
 ```
 
 ```cpp
