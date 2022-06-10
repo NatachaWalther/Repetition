@@ -1,9 +1,64 @@
-# Übungen Buch
+ï»¿# Ãœbungen Buch
 
 ## PVA 1
 
+### 1.12
+1.12 Schreiben Sie eine Schleife, die eine gegebene Zahl binÃ¤r ausgibt, indem Sie mit geeigneten Bit-Operationen prÃ¼fen, welche Bits der Zahl gesetzt sind. Tipp: Verwenden Sie
+die Zahl 1, verschoben um 0 bis z.B. 31 Bit-Positionen, als Â»MaskeÂ«. MÃ¶gliche Ergebnisse
+kÃ¶nnen sein:
+5 â†’ 00000000000000000000000000000101
+-5 â†’ 11111111111111111111111111111011
+Es ist zu sehen, dass -5 intern als Zweierkomplement von 5 dargestellt wird.
+
+```cpp
+//  Zahl binaer ausgeben
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	//cout << "Eingabe einer Zahl: ";
+	int zahl{ 5 };
+	//cin >> zahl;
+	int anzahlDerBytes{ sizeof zahl };
+	int anzahlDerBits{ 8 * anzahlDerBytes };
+
+	cout << " binaer :  ";
+	/* ToDo Schleife */
+	for (int k = anzahlDerBits - 1; k >= 0; --k) {
+		if (zahl & (1 << k)) {
+			cout << '1';
+		}
+		else {
+			cout << '0';
+		}
+	}
+	cout << '\n';
+
+	zahl = -5;
+	cout << " binaer :  ";
+	/* ToDo Schleife */
+	for (int k = anzahlDerBits - 1; k >= 0; --k) {	//Iteriert durch Bits
+		if (zahl & (1 << k)) {						//Wenn das Bit an der Stelle 1 ist print 1, sonst 0
+			cout << '1';
+		}
+		else {
+			cout << '0';
+		}
+	}
+	cout << '\n';
+}
+/*
+Bemerkung: Die 1 in der if (...)-Bedingung ist vom Typ
+int. Sie muss durch mindestens so viele Bits wie zahl
+reprÃ¤sentiert werden. Wenn zahl als long deklariert werden
+soll, ist daher 1L zu schreiben.
+*/
+```
+
+
 ### 1.15 
-Berechnen Sie die Summe aller natürlichen Zahlen von n1 bis n2 mit a) einer forSchleife, b) einer while-Schleife, c) einer do while-Schleife, d) ohne Schleife. Es sei n2 =
+Berechnen Sie die Summe aller natÃ¼rlichen Zahlen von n1 bis n2 mit a) einer forSchleife, b) einer while-Schleife, c) einer do while-Schleife, d) ohne Schleife. Es sei n2 =
 n1 vorausgesetzt.
 ```cpp
 void Aufgabe_1_15() {
@@ -32,9 +87,9 @@ void Aufgabe_1_15() {
 
 ### 1.17 
 Schreiben Sie eine Struktur (struct) namens Person, die Vorname, Nachname und
-Alter einer Person enthält. Vorname und Nachname seien vom Typ string, Alter vom
+Alter einer Person enthÃ¤lt. Vorname und Nachname seien vom Typ string, Alter vom
 Typ int. Verwenden Sie diese Struktur in einem Programm so, dass den Elementen der
-Struktur Werte mit cin (Eingabe über die Tastatur) zugewiesen werden. Anschließend
+Struktur Werte mit cin (Eingabe Ã¼ber die Tastatur) zugewiesen werden. AnschlieÃŸend
 sollen die Elemente auf dem Bildschirm ausgegeben werden.
 
 ```cpp
@@ -53,7 +108,7 @@ void aufgabe_1_17(){
 ```
 
 ### 1.18 
-Gegeben sei eine Zeichenkette des Typs string, die eine natürliche Zahl darstellen
+Gegeben sei eine Zeichenkette des Typs string, die eine natÃ¼rliche Zahl darstellen
 soll und daher nur aus Ziffern besteht. Beispiel: "17462309".
 a) Wandeln Sie den String in eine Zahl z vom Typ long um.
 b) Berechnen Sie die Quersumme von z.
@@ -73,16 +128,16 @@ void aufgabe_1_18(){
 }
 ```
 ### 1.19 
-Etwas schwierig und nur für Knobelfreunde: Schreiben Sie ein Programm, das eine
-einzugebende natürliche Zahl in römischer Darstellung ausgibt. Die römischen Ziffern
-seien in einem konstanten String zeichenvorrat = "IVXLCDM" gegeben. Die meistens verwendete syntaktische Regel lautet: Keine Ziffer außer ’M’ darf mehr als dreimal hintereinanderstehen. Das heißt, ein vierfaches Vorkommen wird durch Subtraktion vom nächsthöheren passenden Wert ersetzt. Subtraktion geschieht durch Voranstellen des kleineren
+Etwas schwierig und nur fÃ¼r Knobelfreunde: Schreiben Sie ein Programm, das eine
+einzugebende natÃ¼rliche Zahl in rÃ¶mischer Darstellung ausgibt. Die rÃ¶mischen Ziffern
+seien in einem konstanten String zeichenvorrat = "IVXLCDM" gegeben. Die meistens verwendete syntaktische Regel lautet: Keine Ziffer auÃŸer â€™Mâ€™ darf mehr als dreimal hintereinanderstehen. Das heiÃŸt, ein vierfaches Vorkommen wird durch Subtraktion vom nÃ¤chsthÃ¶heren passenden Wert ersetzt. Subtraktion geschieht durch Voranstellen des kleineren
 Werts. So wird 4 nicht zu IIII, sondern zu IV, und 9 wird nicht zu VIIII, sondern zu IX.
 ```cpp
 #include <iostream>
 using namespace std;
 int aufgabe_1_19(){
-  cout << "Umwandlung einer natürlichen(!) dezimalen Ganzzahl in "
-          "eine römische Zahl.\n Dezimalzahl eingeben:";
+  cout << "Umwandlung einer natÃ¼rlichen(!) dezimalen Ganzzahl in "
+          "eine rÃ¶mische Zahl.\n Dezimalzahl eingeben:";
   unsigned int dezimalzahl{0};
   cin >> dezimalzahl;
   // Position                 0123456
@@ -124,10 +179,10 @@ int aufgabe_1_19(){
 
 ### 1.20 
 Schreiben Sie ein Programm, das beliebig viele Zahlen im Bereich von -99 bis
-+100 (einschließlich) von der Standardeingabe liest. Der Zahlenbereich sei in 10 gleich
-große Intervalle eingeteilt. Sobald eine Zahl außerhalb des Bereichs eingegeben wird, sei
-die Eingabe beendet. Das Programm soll dann für jedes Intervall ausgeben, wie viele
-Zahlen eingegeben worden sind. Benutzen Sie für -99, +100 usw. Konstanten (const).
++100 (einschlieÃŸlich) von der Standardeingabe liest. Der Zahlenbereich sei in 10 gleich
+groÃŸe Intervalle eingeteilt. Sobald eine Zahl auÃŸerhalb des Bereichs eingegeben wird, sei
+die Eingabe beendet. Das Programm soll dann fÃ¼r jedes Intervall ausgeben, wie viele
+Zahlen eingegeben worden sind. Benutzen Sie fÃ¼r -99, +100 usw. Konstanten (const).
 Zur Speicherung der Intervalle soll ein vector<int> verwendet werden.
 ```cpp
 #include <iostream>
@@ -161,25 +216,25 @@ int aufgabe_1_20()
 
 ### 1.21 
 Das folgende Problem ist klassisch und es haben sich schon viele Menschen damit
-beschäftigt: Wenn Zahlen Achterbahn fahren. Gegeben sei eine natürliche Zahl > 0.
+beschÃ¤ftigt: Wenn Zahlen Achterbahn fahren. Gegeben sei eine natÃ¼rliche Zahl > 0.
 1. Wenn die Zahl gerade ist, teile sie durch 2. Wenn nicht, multipliziere sie mit 3 und
 addiere 1.
-2. Wenn die sich ergebende Zahl größer als 1 ist, wende Schritt 1 auf diese Zahl an.
+2. Wenn die sich ergebende Zahl grÃ¶ÃŸer als 1 ist, wende Schritt 1 auf diese Zahl an.
 Wenn nicht, ist das Verfahren beendet.
-Es zeigt sich, dass die Zahlen erheblich anwachsen können und auch wieder kleiner
-werden – daher der Name Achterbahn. Schreiben Sie ein Programm, das eine Startzahl als
-Eingabe erwartet und den obigen Algorithmus durchführt. Lassen Sie sich die erreichte
+Es zeigt sich, dass die Zahlen erheblich anwachsen kÃ¶nnen und auch wieder kleiner
+werden â€“ daher der Name Achterbahn. Schreiben Sie ein Programm, das eine Startzahl als
+Eingabe erwartet und den obigen Algorithmus durchfÃ¼hrt. Lassen Sie sich die erreichte
 Zahl und das erreichte Maximum anzeigen. Am Ende des Programms soll ausgegeben
-werden, wie viele Iterationen (Durchläufe der Schleife) bis zum Ende des Programms
-benötigt werden. Mit den Anweisungen
+werden, wie viele Iterationen (DurchlÃ¤ufe der Schleife) bis zum Ende des Programms
+benÃ¶tigt werden. Mit den Anweisungen
 string dummy {""};
 getline(cin, dummy); // weiter mit Tastendruck
-können Sie die Ausgabe nach Erreichen eines neuen Höchstwerts anhalten. Versuchen
+kÃ¶nnen Sie die Ausgabe nach Erreichen eines neuen HÃ¶chstwerts anhalten. Versuchen
 Sie die Startzahlen 4096, 142587, 1501353. Bei der ersten Zahl (4096) ist klar, dass
 der Algorithmus schnell endet, weil 4096 eine Zweierpotenz ist. Die Frage ist letztlich:
 Gibt es eine Startzahl, mit der der Algorithmus nicht irgendwann endet? Dieses Problem
 tritt auch unter einer Reihe anderer Namen auf: Syracuse-Problem, Ulams-Problem oder
-Collatz-Problem. Hinweis: Bei großen Zahlen wie der letzten angegebenen wird der intZahlenbereich überschritten; nehmen Sie stattdessen long long.
+Collatz-Problem. Hinweis: Bei groÃŸen Zahlen wie der letzten angegebenen wird der intZahlenbereich Ã¼berschritten; nehmen Sie stattdessen long long.
 
 ```cpp
 #include <iostream>
@@ -191,7 +246,7 @@ int aufgabe_1_21()
   cout << "Bitte eine Startzahl > 0 eingeben: ";
   long long zahl;
   cin >> zahl;
-  cin.ignore(1000, '\n');          // Tastaturpuffer löschen
+  cin.ignore(1000, '\n');          // Tastaturpuffer lÃ¶schen
   int iterationen = 0;
   long long maxzahl = 0LL;
   while (zahl > 1) {
@@ -215,20 +270,20 @@ int aufgabe_1_21()
 ```
 ### 1.22 
 Schreiben Sie ein Progamm, das den Inhalt einer Datei hexadezimal ausdruckt.
-Tipp: Da manche Compiler char als signed char implementieren, man aber für die Darstellung eine unsigned-Zahl braucht, muss ein Zeichen etwa wie folgt umgewandelt werden:
+Tipp: Da manche Compiler char als signed char implementieren, man aber fÃ¼r die Darstellung eine unsigned-Zahl braucht, muss ein Zeichen etwa wie folgt umgewandelt werden:
 ```cpp
-char c {’?’}; // evtl. signed
+char c {â€™?â€™}; // evtl. signed
 while (datei.get(c)) { // lesen
 unsigned char uc = static_cast<unsigned char>(c);
 unsigned int zahl = static_cast<unsigned int>(uc);
 // zahl hier weiterverarbeiten ...
 }
 ```
-Da das eine Übungsaufgabe ist, versuchen Sie, ohne hex auszukommen, wie Sie es etwa
-mit der Zeile cout << hex << "0x" << 255 << ’\n’; ausprobieren können.
+Da das eine Ãœbungsaufgabe ist, versuchen Sie, ohne hex auszukommen, wie Sie es etwa
+mit der Zeile cout << hex << "0x" << 255 << â€™\nâ€™; ausprobieren kÃ¶nnen.
 
 ```cpp
-#include <cstdlib>          // für exit()
+#include <cstdlib>          // fÃ¼r exit()
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -242,7 +297,7 @@ int main()
 
   ifstream quelle(Quelldateiname, ios::binary);
   if (!quelle) {          // muss existieren
-    cerr << Quelldateiname << " kann nicht geöffnet werden!\n";
+    cerr << Quelldateiname << " kann nicht geÃ¶ffnet werden!\n";
     exit(-1);
   }
 
@@ -264,10 +319,10 @@ int main()
 }
 ```
 ### 1.23 
-Erweiterung zur vorigen Aufgabe: Erst 16 Buchstaben und dann die zugehörigen
+Erweiterung zur vorigen Aufgabe: Erst 16 Buchstaben und dann die zugehÃ¶rigen
 16 Hex-Codes pro Zeile ausgeben.
 ```cpp
-#include <cstdlib>          // für exit()
+#include <cstdlib>          // fÃ¼r exit()
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -281,7 +336,7 @@ int main()
 
   ifstream quelle(Quelldateiname, ios::binary);
   if (!quelle) {          // muss existieren
-    cerr << Quelldateiname << " kann nicht geöffnet werden!\n";
+    cerr << Quelldateiname << " kann nicht geÃ¶ffnet werden!\n";
     exit(-1);
   }
 
@@ -322,15 +377,15 @@ int main()
 }
 ```
 ### 1.24 
-Schreiben Sie ein Programm stat.cpp, das eine Statistik für eine Textdatei ausgibt,
-deren Name eingegeben werden soll. Ein mögliches Ergebnis:
+Schreiben Sie ein Programm stat.cpp, das eine Statistik fÃ¼r eine Textdatei ausgibt,
+deren Name eingegeben werden soll. Ein mÃ¶gliches Ergebnis:
 Anzahl der Zeichen = 16437, Anzahl der Worte = 2526, Anzahl der Zeilen = 220
 Ein Wort sei hier als ununterbrochene Folge von Buchstaben definiert, wobei Umlaute
-hier nicht als Buchstaben zählen sollen, weil sie nicht Teil des ASCII-Zeichensatzes sind.
+hier nicht als Buchstaben zÃ¤hlen sollen, weil sie nicht Teil des ASCII-Zeichensatzes sind.
 In der Anzahl der Zeichen soll die Zeilenendekennung nicht enthalten sein.
 ```cpp
 //  Datei-Statistik
-#include <cstdlib>          // für exit()
+#include <cstdlib>          // fÃ¼r exit()
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -343,7 +398,7 @@ int main()
   cin >> Quelldateiname;
   ifstream quelle(Quelldateiname);
   if (!quelle) {          // muss existieren
-    cerr << Quelldateiname << " kann nicht geöffnet werden!\n";
+    cerr << Quelldateiname << " kann nicht geÃ¶ffnet werden!\n";
     exit(-1);
   }
 
@@ -360,22 +415,22 @@ int main()
     else {
       ++zeichenzahl;
     }
-    // Umlaute werden nicht berücksichtigt
+    // Umlaute werden nicht berÃ¼cksichtigt
     if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
       istWort = true;          // Wortanfang, oder c ist in einem Wort
     }
     else {
       if (istWort) {
-        ++wortzahl;          // Wortende überschritten
+        ++wortzahl;          // Wortende Ã¼berschritten
       }
       istWort = false;
     }
   }
-  if (c != '\n') {          // Die letzte Zeile enthält kein abschließendes \n.
-    ++zeilenzahl;           // trotzdem mitzählen
+  if (c != '\n') {          // Die letzte Zeile enthÃ¤lt kein abschlieÃŸendes \n.
+    ++zeilenzahl;           // trotzdem mitzÃ¤hlen
   }
   if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
-    // das letzte Zeichen ist in einem Wort, das noch nicht mitgezählt wurde
+    // das letzte Zeichen ist in einem Wort, das noch nicht mitgezÃ¤hlt wurde
     ++wortzahl;
   }
   cout << "Anzahl der Zeichen (ohne Zeilenendekennung) = " << zeichenzahl << '\n';
@@ -402,13 +457,13 @@ Heinz Erhardt
 
 \#
 
-A) Schreiben Sie ein Programm, das eine Datei dieser Struktur mit beliebig vielen Einträgen einliest. Dabei sollen ein Name und die dazugehörende Matrikelnummer ein struct
+A) Schreiben Sie ein Programm, das eine Datei dieser Struktur mit beliebig vielen EintrÃ¤gen einliest. Dabei sollen ein Name und die dazugehÃ¶rende Matrikelnummer ein struct
 des Typs StudentIn bilden. Name und Matrikelnummer seien beide vom Typ string. Die
 Daten sollen in einem Vektor des Typs vector<StudentIn> abgespeichert werden. Geben
 Sie den Inhalt des Vektors zur Kontrolle aus.
-B) Anschließend soll das Programm eine Matrikelnummer erfragen und daraufhin den
-zugehörigen Namen ausgeben (bzw. die Meldung »nicht gefunden«). Die Abfrage soll
-beliebig oft möglich sein. Wird X oder x eingegeben, beendet sich das Programm.
+B) AnschlieÃŸend soll das Programm eine Matrikelnummer erfragen und daraufhin den
+zugehÃ¶rigen Namen ausgeben (bzw. die Meldung Â»nicht gefundenÂ«). Die Abfrage soll
+beliebig oft mÃ¶glich sein. Wird X oder x eingegeben, beendet sich das Programm.
 ```cpp
 // Loesung noch ohne Funktionen
 #include <fstream>
@@ -475,8 +530,8 @@ int main()
 }
 ```
 
-### Repe PVA 1 Moodle
-1. Gegeben ist folgendes Programm:
+## Repe PVA 1 Moodle
+### 1. Gegeben ist folgendes Programm:
 ```cpp
 #include <iostream>
 using namespace std;
@@ -503,7 +558,7 @@ Die richtige Antwort ist:
 
 Fehler	C2065	"caut": nichtdeklarierter Bezeichner
 
-2. Gegeben ist folgendes Programm
+### 2. Gegeben ist folgendes Programm
 
 ```cpp
 #include <iostream>
@@ -531,7 +586,7 @@ Was gibt der Compiler aus?
 Die richtige Antwort ist:
 Fehler	C2065	"summand2": nichtdeklarierter Bezeichner
 
-3. GGT
+### 3. GGT
 
 ```cpp
 #include <iostream>
@@ -555,35 +610,175 @@ int main()
 }
 ```
 
+## Ãœbungen Word
+
+### P1-1
+
+Schreiben Sie ein Programm, dass folgendes ausgibt:
+
+Peter: Hey Frank, I just learned how to add two numbers together.
+
+Frank: Cool!
+
+Peter : Give me the first number.
+
+Frank: 2.
+
+Peter : Ok, and give me the second number.
+
+Frank: 5.
+
+Peter : Ok, here's the answer: 2 + 5 = 7.
+
+Frank: Wow! You are amazing!
 
 
+### P1-2
+Aufgabe P1-2: Was wird hier ausgegeben? Was bedeutet die Ausgabe?
+```cpp
+void printSizeOfPrimitiveDataTypes(){
+	signed char a;
+	signed short b;
+	signed int c;
+	signed long d;
+	signed long long e;
+	float f;
+	double g;
+	long double h;
+	bool i;
+
+
+	std::cout << "sizeof signed char a      " << sizeof(a) << std::endl;
+	std::cout << "sizeof signed short b     " << sizeof(b) << std::endl;
+	std::cout << "sizeof signed int c       " << sizeof(c) << std::endl;
+	std::cout << "sizeof signed long d      " << sizeof(d) << std::endl;
+	std::cout << "sizeof signed long long e " << sizeof(e) << std::endl;
+	std::cout << "sizeof float f            " << sizeof(f) << std::endl;
+	std::cout << "sizeof double g           " << sizeof(g) << std::endl;
+	std::cout << "sizeof long double h      " << sizeof(h) << std::endl;
+	std::cout << "sizeof bool i             " << sizeof(i) << std::endl;
+}
+```
+Ausgabe: -> GrÃ¶sse in Bytes 
+
+sizeof signed char a      1
+
+sizeof signed short b     2
+
+sizeof signed int c       4
+
+sizeof signed long d      4
+
+sizeof signed long long e 8
+
+sizeof float f            4
+
+sizeof double g           8
+
+sizeof long double h      8
+
+sizeof bool i             1
+
+
+### P-1-4
+
+Schreiben Sie ein Programm, das ein String rÃ¼ckwÃ¤rts geschrieben ausgibt 
 
 ```cpp
+void revOfStr(string& str)
+{
+	int n = str.length();
+
+	// Swap character starting from two
+	// corners
+	for (int i = 0; i < n / 2; i++)
+		swap(str[i], str[n - i - 1]);
+}
 
 
+void aufgabe_1_4() {
+	{
+		string str;
+		cout << "\n\n Reverse a string:\n";
+		cout << "----------------------\n";
+		cout << " Enter a string: ";
+		getline(cin, str);
+		revOfStr(str);
+		cout << " The string in reverse are: " << str << "\n";
+		system("pause");
+	}
+}
 ```
 
-
-
+### P-1-6
+Scope Resolution: Was gibt folgendes Programm aus? 
 
 ```cpp
+int x;  // Global x    
+int main() 
+{ 
+  int x = 10; // Local x 
+  cout << "Value of global x is " << ::x; 
+  cout << "\nValue of local x is " << x;   
+  return 0; 
+} 
+```
+Value of global x is 0 -> Ausserhalb = global
 
+Value of local x is 10 -> innerhalb = local
 
+### P-1-7
+
+Analysieren Sie die folgende Funktion vectorExample aus dem Beispiel VectorsAndArrays und vervollstÃ¤ndigen Sie das Programm um ein Sortieralgorithmus:
+
+```cpp
+void vectorExample(int size){
+	std::cout << "Beispiel zu vector" << std::endl;
+	std::vector<int> v(size);
+	for(int &x : v){
+		x = rng() % 100 + 1;
+	}
+	/* ToDo sortieren der Zahlen (ohne sort-Funktion stl) */
+	for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++){
+		std::cout << *it << ", ";
+	}
+	std::cout << std::endl;
+}
 ```
 
-
-
-
 ```cpp
+#include <vector>
 
+void aufgabe1_7(int size) {
+	std::cout << "Beispiel zu vector" << std::endl;
+	std::vector<int> v(size);
 
-```
+	// Generiere Zahl
+	for (int& x : v) {
+		x = rand() % 100 + 1;
+	}
 
+	//Print Vektor
+	cout << "Vorher: \n";
+	for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+		std::cout << *it << ", ";
+	}
+	cout << "\n";
+	// Bubblesort
+	for (size_t i = 0; i < v.size() - 1; ++i) {
+		for (size_t j = 0; j < v.size() - i - 1; ++j) {
+			if (v.at(j) > v.at(j + 1))
+				std::swap(v.at(j), v.at(j + 1));
+		}
+	}
+	cout << "\n";
+	cout << "Nachher: \n";
+	for (std::vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+		std::cout << *it << ", ";
+	}
 
-
-
-```cpp
-
+	std::cout << std::endl;
+}
 
 ```
 

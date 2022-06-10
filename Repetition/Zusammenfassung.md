@@ -1,6 +1,6 @@
 ﻿# PVA 1
 
-## Hello World
+## Basics
 
 ```cpp
 #include <iostream>
@@ -12,6 +12,22 @@ int main() {
 
 }
 ```
+
+Compiler Direktiven:
+
+#include \<iostream>  für vordefinierte Files
+#include "mylib.h"  für userdefinierte Files
+
+-> Libraries und Headerfiles
+
+Namespaces:
+
+using namespace std; für ganzer Namespace
+
+using std::cin für bestimmte Objekte
+
+
+
 ## Operatoren
 
 ### Arithmetische Operatoren
