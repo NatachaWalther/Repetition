@@ -124,7 +124,7 @@ constexpr int f {e};			// ok, indirekt aus Literal ableitbar
 
  Wichtig: Signed und Unsigned nie Mischen!!
 
- Int to String
+ **Int to String** 
 
  ```cpp
  #include <iostream>
@@ -139,7 +139,7 @@ constexpr int f {e};			// ok, indirekt aus Literal ableitbar
 }
  ``` 
 
- Stringstream
+ **Stringstream**
 
  convert strings of digits into ints, floats, or doubles
  
@@ -168,20 +168,12 @@ int main()
  ``` 
 
  Weitere Optionen unter String
- 
- ```cpp
- 
- ```
-
-
 
  ## Gültigkeitsbereich und Sichtbarkeit
 
  Nach der Deklaration innerhalb des Blocks {}
 
-
-
-```cpp
+ ```cpp
 #include <iostream>
 using namespace std;
 // a und b werden außerhalb eines jeden Blocks deklariert. Sie sind damit globale Variablen.
@@ -193,7 +185,7 @@ int main() {
 	int a {10};
 
 	cout << "lokales a= " << a << ’\n’;
-	cout << "globales ::a= " << ::a << ’\n’;{ // Ein neuer Block innerhalb des bestehenden beginnt.
+	cout << "globales ::a= " << ::a << ’\n’;{ 
 
 }
 ```
@@ -531,8 +523,148 @@ int main() {
 		ziel.put(ch); // zeichenweise kopieren
 	}
 } // Dateien werden am Programmende automatisch geschlossen.
+```
+# PVA 2
+
+## Funktionen
+
+Aufbau: 
+```cpp
+rückgabetyp funktionsname(parameterliste);
+
+//Deklaration
+int summe(int a, int b);
+
+//Definition
+int summe(int a, int b) {
+	return a+b;
+}
+
+```
+### Übergabe per Wert
+
+Innerhalb der Funktion wird mit einer Kopie gearbeitet, der originale Parameter bleibt unverändert
+
+```cpp
+#include <iostream>
+int addiere_5(int); // Deklaration (Funktionsprototyp)
+int main()
+{
+int i{0};
+std::cout << i << " = Wert von i\n";
+auto erg = addiere_5(i); // Aufruf (auto statt int)
+std::cout << erg << " = Ergebnis von addiere_5\n";
+std::cout << i << " = i unverändert!\n";
+}
+int addiere_5(int x) // Definition
+{
+x += 5;
+return x;
+}
+```
+### Rekursion
+Funktion ruft sich selber auf
+
+Beispiel Quersumme: 
+```cpp
+#include <iostream>
+
+int qsum(long z)                        
+// Parameter per Wert übergeben (Grunddatentyp)
+{
+  if (z != 0) {
+    int letzteZiffer = z % 10;
+    return letzteZiffer + qsum(z / 10); 
+	// Rekursion
+  }
+  else {                                
+  // Abbruchbedingung z == 0
+    return 0;
+  }
+}
+
+int main()
+{
+  std::cout << "Zahl: ";
+  long zahl {0L};
+  std::cin >> zahl;
+  std::cout << "Quersumme = " << qsum(zahl) << '\n';
+}
+```
+### Übergabe per Referenz
+
+Wenn das Objekt verändert werden soll muss es als Referenz übergeben werden
+
+```cpp
+int i = 10;
+int& j = i;		//Referenz auf i
+
+using namespace std;
+
+void addiere_7(int& zahl); // int& = Referenz auf int
+int main() {
+	int i{0};
+	cout << i << " = alter Wert von i\n";
+	addiere_7(i); // Syntax wie bei Übergabe per Wert
+	cout << i << " = neuer Wert von i nach addiere_7\n";
+}
+void addiere_7(int& x) // int& = Referenz auf int {
+	x += 7; // Original des Aufrufers wird geändert!
+}
+```
+### Überladen von Funktionen
+
+Mehrere Funktionen mit selbem Namen und anderen parametern, bsp. Print Funktion.
 
 
+## Makros
+
+#include liest Dateien ein
+#define, #if, #ifdef, #ifndef, #elif, #else, #endif steuern Compilationsablauf
+
+* #define X definiert ein Symbol X.
+* #if B lässt den Compiler die nächste Zeile verarbeiten, falls der konstante Ausdruck B wahr ist.
+* #ifdef X fragt ab, ob X definiert ist.
+* #ifndef X fragt ab, ob X undefiniert ist.
+* #else gibt eine Alternative an.
+* #elif entspricht #else #if.
+* #endif beschließt jede mit #if beginnende Konstruktion
+
+ Vermeiden mehrfacher Inkludierung mit #ifndef und #define
+
+**Empfehlung für den Aufbau von Header-Dateien**
+
+Eine Möglichkeit für den Aufbau von Header-Dateien ist das folgende Schema:
+
+Schema für den Aufbau einer Header-Datei mit dem Namen fn.h
+```cpp
+#ifndef FN_H
+#define FN_H
+// hier folgen die Deklarationen
+#endif // FN_H
+```
+
+## Modulare Programmgestaltung
+
+
+
+
+
+
+
+
+
+```cpp
+
+```
+
+
+```cpp
+
+```
+
+
+```cpp
 
 ```
 

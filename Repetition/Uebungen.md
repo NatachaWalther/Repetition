@@ -38,8 +38,10 @@ int main()
 	zahl = -5;
 	cout << " binaer :  ";
 	/* ToDo Schleife */
-	for (int k = anzahlDerBits - 1; k >= 0; --k) {	//Iteriert durch Bits
-		if (zahl & (1 << k)) {						//Wenn das Bit an der Stelle 1 ist print 1, sonst 0
+	for (int k = anzahlDerBits - 1; k >= 0; --k) {	
+	//Iteriert durch Bits
+		if (zahl & (1 << k)) {						
+		//Wenn das Bit an der Stelle 1 ist print 1, sonst 0
 			cout << '1';
 		}
 		else {
@@ -779,38 +781,133 @@ void aufgabe1_7(int size) {
 
 	std::cout << std::endl;
 }
-
 ```
+## PVA 2
 
+### 2-2
 
-
+Schreiben Sie eine Funktion int dauerInSekunden(int stunden, int minuten, int
+sekunden), die die Gesamtzahl der Sekunden zurückgibt, berechnet aus den Parametern.
 
 ```cpp
+int dauerInSekunden(int stunden, int minuten, int sekunden) {
 
+	int dauer = 0;
+	dauer += sekunden;
+	dauer += (minuten * 60);
+	dauer += (stunden * 60 * 60);
 
+	return dauer;
+}
 ```
-
-
-
+### 2-3
+Schreiben Sie eine Funktion double power(double x, int y), die x^y berechnen soll.
+Wenn Sie nicht mehr genau wissen sollten, was x
 
 ```cpp
+#include <cmath>          // wegen pow(), s.u.
+#include <iostream>
+using namespace std;
 
+double power(double x, int y);
 
+int main()
+{
+  cout << "x^y berechnen. Zahlen x und y eingeben (y ganzzahlig):";
+  double x{0.0};
+  int y{0};
+  cin >> x >> y;
+  cout << "x^y  = " << power(x, y) << '\n';
+  cout << "pow(x,y)  = " << pow(x, y) << '\n';          // aus cmath
+}
+
+// Die Funktion power() entspricht der Funktion  pow()
+//  der C++-Bibliothek ( <cmath>}.
+
+double power(double x, int y)
+{
+  double ergebnis{1};
+  bool negativ {false};
+  if (y < 0) {
+    y = -y;
+    negativ = true;
+  }
+  for (int i = 0; i < y; ++i) {
+    ergebnis *= x;
+  }
+  if (negativ) {
+    ergebnis = 1.0 / ergebnis;
+  }
+  return ergebnis;
+}
 ```
+### 2-4
 
-
-
+Schreiben Sie die Funktion zur Berechnung der Fakultät von Seite 114 als rekursive
+Funktion. Dabei gilt: 0! = 1, 1! = 1, n! = n · (n – 1)!
 
 ```cpp
+#include <iostream>
+using namespace std;
 
+long fakultaet(int n);
 
+int main()
+{
+  cout << "Ganze Zahl >= 0 eingeben: ";
+  int n{0};
+  cin >> n;
+  cout << n << "! = " << fakultaet(n) << '\n';
+}
+
+long fakultaet(int n)
+{
+  if (n < 2) {
+    return 1;          // Rekursionsabbruch
+  }
+  return n * fakultaet(n - 1);
+}
 ```
+### 2-8
 
-
-
+2.8 Schreiben Sie eine Funktion istAlphanumerisch(const string& text), die true 
+zurückgibt, wenn text nur Buchstaben und Ziffern enthält, andernfalls false.
 
 ```cpp
+#include <iostream>
+#include <string>
 
+bool istAlphanumerisch(const std::string& text);
+
+int main()
+{
+  std::string einText{"?"};
+  std::cout << "Zeichenfolge eingeben:";
+  std::getline(std::cin, einText);
+  if (istAlphanumerisch(einText)) {
+    std::cout << "Die eingegebene Zeichenkette enthält "
+                 "nur Buchstaben und Ziffern.\n";
+  }
+  else {
+    std::cout << "Die eingegebene Zeichenkette enthält NICHT "
+                 "nur Buchstaben und Ziffern.\n";
+  }
+}
+
+bool istAlphanumerisch(const std::string& text)
+{
+  bool ergebnis{true};
+  for (char zeichen : text) {
+    bool istZiffer {zeichen >= '0' && zeichen <= '9'};
+    bool istBuchstabe {(zeichen >= 'A' && zeichen <= 'Z') || (zeichen >= 'a' && zeichen <= 'z')};
+    // && bindet stärker, die Klammern sind nur zur besseren Lesbarkeit
+    if (!istZiffer && !istBuchstabe) {
+      ergebnis = false;
+      break;          // weitere Prüfungen sind nicht notwendig
+    }
+  }
+  return ergebnis;
+}
 
 ```
 
