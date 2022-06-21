@@ -682,16 +682,246 @@ using namespace sskb;
 Bei constexpr- und anderen inline-Funktionen liest der Compiler den gesamten Funktionskörper vor der ersten Verwendung, einschließlich der return-Anweisung. Das ermöglicht dem Compiler, den Rückgabetyp zu ermitteln, sowohl in der Funktionsdefinition, als auch beim Aufruf der Funktion. In solchen Fällen muss man nicht den Datentyp
 erst nachsehen, sondern kann das bekannte Schlüsselwort auto verwenden.
 
+## Header
+Files mit Endung .h -> Einbinden mit #include \<iostream>
 
+## Objektorientierung
+### Klassen
+Die Abstraktion von ähnlichen Eigenschaften und Verhaltensweisen ähnlicher Objekte.
+Onjekt als Ausprägung einer Klasse.
 
+```cpp
+class Ort1 { // Version 1
+public:
+int getX() const; // const: siehe Text unten
+int getY() const;
+void aendern(int x, int y); // x, y = neue Werte
+private:
+int xKoordinate;
+int yKoordinate;
+}; 
+```
+Eine Datenänderung kann ausschließlich über eine geeignete Methode erfolgen,
+zum Beispiel aendern(). Die x- und die y-Koordinate haben anfangs undefinierte Werte.
+C++ initialisiert sie nicht automatisch mit 0. Das Schlüsselwort const oben drückt aus,
+dass die damit ausgezeichneten Elementfunktionen das Objekt nicht verändern können
+und deswegen auch auf konstante Objekte anwendbar sind. getX() und getY() geben nur
+Zahlen zurück, ohne die privaten Daten zu verändern, während aendern() die vorherigen
+Werte der privaten Variablen überschreibt.
+
+#### Objekt erzeugen
+```cpp
+int main() // Anwendung der Ort1-Klasse
+{
+Ort1 einOrt1; // Objekt erzeugen
+einOrt1.aendern(100, 200);
+std::cout << "Der Ort hat die Koordinaten x = "
+<< einOrt1.getX() << " und y = " << einOrt1.getY() << ’\n’;
+}
+```
+
+Objekte können wie einfache Variablen als konstant deklariert werden. Um jegliche Änderungen zu vermeiden, dürfen Methoden von konstanten Objekten nur dann aufgerufen werden (ausgenommen Konstruktoren und Destruktoren), wenn sie als konstante
+Elementfunktionen deklariert und definiert sind
+
+#### inline-Elementfunktionen
+
+```cpp
+class Ort1 {
+public:
+int getX() const; // Prototyp
+int getY() const; // Prototyp
+void aendern(int x, int y); // Prototyp
+private:
+int xKoordinate;
+int yKoordinate;
+};
+// ========= inline-Implementierung ===========
+inline int Ort1::getX() const { return xKoordinate; }
+inline int Ort1::getY() const { return yKoordinate; }
+inline void Ort1::aendern(int x, int y) {
+xKoordinate = x;
+yKoordinate = y;
+}
+```
+Diese Variante hat den Vorteil, dass die Implementierung der Methoden nicht direkt
+innerhalb der Klassendeklaration sichtbar ist. Dadurch kann eine Klassendeklaration
+übersichtlicher werden.
+
+### Konstruktoren
+
+#### Standardkonstruktor
+Falls kein Konstruktor angegeben wird, wird einer vom System automatisch erzeugt
+(implizite Konstruktordeklaration). Ohne die direkte Initialisierung der Attribute enthalten dann die Daten des Objekts unbestimmte Werte. Dieser
+vordefinierte Konstruktor (englisch default constructor) kann auch selbst geschrieben
+werden, um Attribute bei Anlage des Objekts zu initialisieren. Der Standardkonstruktor
+hat keine Parameter. Für eine Klasse X wird er einfach mit X(); deklariert.
+
+```cpp
+// in Ort1.h
+class Ort1 { // Variante 4
+public:
+Ort1(); // neuer Standardkonstruktor
+// Rest wie oben
+}
+
+// in Ort1.cpp
+Ort1::Ort1() // neuer Standardkonstruktor
+{
+xKoordinate = 0; // Koordinaten des Nullpunkts
+yKoordinate = 0;
+}
+```
+
+#### Allgemeiner Konstruktor
+Allgemeine Konstruktoren können im Gegensatz zu Standardkonstruktoren Parameter
+haben und genau wie Funktionen überladen werden. Das heißt, dass es mehrere allgemeine Konstruktoren mit unterschiedlichen Parameterlisten geben kann.
+
+```cpp
+// in Ort1.h
+class Ort1 { // Variante 6
+	public:
+		Ort1(int x, int y); // Allgemeiner Konstruktor
+// Rest wie oben
+}
+
+// in Ort1.cpp
+Ort1::Ort1(int x, int y){ // Allgemeiner Konstruktor
+	xKoordinate = x;
+	yKoordinate = y;
+}
+
+// Aufruf
+Ort1 nochEinOrt1(70, 90);
+```
+#### Kopierkonstruktor
+Ein Kopierkonstruktor wird im Englischen copy constructor oder copy initializer genannt.
+Er dient dazu, ein Objekt mit einem anderen zu initialisieren. Der erste (und im Allgemeinen einzige) Parameter des Kopierkonstruktors ist eine Referenz auf ein Objekt derselben
+Klasse. Die Deklaration eines Kopierkonstruktors der Klasse X lautet X(X&);. Weil ein Objekt, das dem Kopierkonstruktor als Argument dient, nicht verändert werden soll, wird
+es als Referenz auf const übergeben: X(const X&). Falls kein Kopierkonstruktor vorgegeben wird, wird bei Bedarf vom System einer erzeugt, der die einzelnen Elemente des
+Objekts kopiert. D
+
+```cpp
+Ort(const Ort& einOrt)
+// Kopie der einzelnen Elemente
+	: xKoordinate{einOrt.xKoordinate},
+	yKoordinate{einOrt.yKoordinate}{
+// Anzeige des Aufrufs nur zur Demonstration
+std::cout << "Kopierkonstruktor für ("
+	  << xKoordinate << ", " << yKoordinate << ") aufgerufen\n";
+}
+```
+### Destruktoren
+Destruktoren dienen dazu, Aufräumarbeiten für nicht mehr benötigte Objekte zu leisten. Wenn Destruktoren nicht vorgegeben werden, werden sie vom System automatisch
+erzeugt (implizite Deklaration). Der häufigste Zweck ist die Speicherfreigabe, wenn der
+Gültigkeitsbereich eines Objekts verlassen wird. Konstruktoren haben die Aufgabe, Ressourcen zu beschaffen, Destruktoren obliegt es, sie wieder freizugeben. Die Reihenfolge
+des Aufrufs der Destruktoren ist umgekehrt wie die der Konstruktoren.
+Die Objekte werden nach der *letzten* Anweisung ihres Blocks zerstört.
+
+```cpp
+#include <iostream>
+
+class Beispiel {
+public:
+  explicit Beispiel(int i = 0)                       // Konstruktor
+      : zahl{i}
+  {
+    std::cout << "Objekt " << zahl << " wird erzeugt.\n";
+  }
+
+  ~Beispiel()                               // Destruktor
+  {
+    std::cout << "Objekt " << zahl << " wird zerstört.\n";
+  }
+
+private:
+  int zahl;
+};
+
+Beispiel ein_globales_Beispiel;  // globale Variable, durch Vorgabewert mit 0 initialisiert
+
+int main()
+{
+  std::cout << "main wird begonnen\n";
+  Beispiel beispiel1(1);
+  {
+    std::cout << "    neuer Block\n    ";
+    Beispiel beispiel2(2);
+    std::cout << "    Block wird verlassen\n    ";
+  }
+  std::cout << "main wird verlassen\n";
+}
+
+//Output
+Die Ausgabe des Programms ist:
+Objekt 0 wird erzeugt.
+main wird begonnen
+Objekt 1 wird erzeugt.
+	neuer Block
+	Objekt 2 wird erzeugt.
+	Block wird verlassen
+	Objekt 2 wird zerstört.
+main wird verlassen
+Objekt 1 wird zerstört.
+Objekt 0 wird zerstört
+```
+### Gegenseitige Abhängigkeit von Klassen
+Was tun, wenn bei zwei Klassen jede die Methoden der jeweils anderen Klasse benutzt?
+Es nutzt nichts, die Header-Datei der jeweils anderen Klasse miteinzuschließen, weil der
+Compiler die nötigen Informationen nicht bekommt.
+
+Wenn A.h zuerst gelesen wird, wird bei Ausführung der dritten Zeile B.h eingelesen. Die
+Ausführung der dritten Zeile von B.h scheitert jedoch, weil A_h nun definiert ist und der
+Rest von A.h nicht zur Kenntnis genommen wird. Die Lösung des Problems besteht in
+der Vorwärtsdeklaration:
+
+```cpp
+// Datei A.h					// Datei B.h
+#ifndef A_h					#ifndef B_h
+#define A_h					#define B_h
+class B; //Vorwärtsdeklaration			class A; //Vorwärtsdeklaration
+class A {					class B {
+	public:						public:
+	void benutzeB(const B&);			void machWasMitA(A*);
+	void eineAMethode();				void eineBMethode() const;
+	// ... usw.					// ... usw.
+};						};
+#endif						#endif
+```
+Die Notation A* bedeutet »Zeiger3
+auf Objekt der Klasse A«. In den Header-Dateien werden gegenseitig nur die Klassennamen bekannt gemacht. Die Kenntnisnahme der Methoden wird auf die Implementierungsdateien verschoben. Dies funktioniert dann, wenn die
+Header-Dateien ausschließlich Zeiger oder Referenzen der jeweils anderen Klasse enthalten, aber keine Methodenaufrufe. Dies kann leicht erreicht werden, wenn auf inlineMethoden verzichtet wird, die Methoden der anderen Klasse benutzen. Die dazu notwendige Struktur wird für zwei Klassen gezeigt, eine Erweiterung auf die gegenseitige
+Abhängigkeit mehrerer Klassen ist nach diesem Muster leicht möglich.
+
+# PVA 3
+
+## Zeiger
 
 ```cpp
 
+```
+
+```cpp
+
+```
+
+```cpp
+
+```
+
+```cpp
+
+```
+
+```cpp
+
+```
+
+```cpp
+
+```
+
+```cpp
 
 ```
 
 
-```cpp
-
-
-```

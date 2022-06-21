@@ -5,16 +5,15 @@
 
 using namespace std;
 
-long fakultaet(int wert) {
-
-	long fak = 0;
-
-
-}
 
 int main() {
 
-	
+	string food = "Pizza";
+	string& meal = food;
+	cout << food << "\n";
+	cout << meal << "\n";
+	return 0;
+
 
 
 }

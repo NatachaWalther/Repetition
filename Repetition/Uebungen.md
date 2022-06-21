@@ -908,15 +908,82 @@ bool istAlphanumerisch(const std::string& text)
   }
   return ergebnis;
 }
-
 ```
+### 3-1
+Schreiben Sie eine Klasse Person, die nur die Attribute Name (Typ std::string) und
+Alter (Typ int) hat. Die Klasse soll die Methoden getName() und getAlter() zum Abfragen der Attribute enthalten. setName(const std::string& neuer Name) und setAlter(int
+neuesAlter) dienen zum Ändern der Attribute. Schreiben Sie dazu ein main()-Programm,
+das ein Person-Objekt für die 22-Jährige Annabella Meier anlegt und zum Beispiel die
+folgenden Ausgaben tätigt:
 
 
+Annabella Meier ist 22 Jahre alt.
 
+
+Annabella Meier hatte Geburtstag. Sie ist jetzt 23 Jahre alt.
+
+
+Sie hat auch geheiratet. Ihr Name ist jetzt Annabella Schulz.
+
+
+Im main()-Programm sind die Namen und Altersangaben der Ausgabe natürlich durch
+die entsprechenden Funktionsaufrufe zu bewerkstelligen.
+Erweitern Sie anschließend die Klasse (und den Konstruktor) um das Attribut Geschlecht.
+Dazu fügen Sie in der Datei Person.h vor der Klasse Person die Deklaration enum class
+Geschlecht {m, w}; ein. Geben Sie im main()-Programm mithilfe der Elementfunktionen
+istFrau() bzw. istMann() aus, ob die dort angelegte Person Frau oder Mann ist.
 
 ```cpp
+//Person.h
 
+#ifndef PERSON_H
+#define PERSON_H
+#include <string>
 
+enum class Geschlecht { m, w };
+
+class Person {
+public:
+  Person(const std::string& name_, int alter_, Geschlecht g)
+      : name{name_}, alter{alter_}, geschlecht{g}
+  {
+  }
+  const std::string& getName() const { return name; }
+  void setName(const std::string& neuerName) { name = neuerName; }
+  int getAlter() const { return alter; }
+  void setAlter(unsigned int neuesAlter) { alter = neuesAlter; }
+  bool istFrau() const { return geschlecht == Geschlecht::w; }
+  bool istMann() const { return geschlecht == Geschlecht::m; }
+
+private:
+  std::string name;
+  int alter;
+  Geschlecht geschlecht;
+};
+#endif
+
+//Main.cpp
+#include "Person.h"
+#include <iostream>
+using namespace std;
+
+int main()
+{
+  Person person("Annabella Meier", 22, Geschlecht::w);
+  cout << person.getName() << " ist " << person.getAlter() << " Jahre alt.\n";
+  person.setAlter(person.getAlter() + 1);          // Geburtstag
+  cout << person.getName() << " hatte Geburtstag. Sie ist jetzt " << person.getAlter()
+       << " Jahre alt.\n";
+  person.setName("Annabella Schulz");          // Namensänderung
+  cout << "Sie hat auch geheiratet. Ihr Name ist jetzt " << person.getName() << ".\n";
+
+  if (person.istFrau()) {
+    cout << person.getName() << " ist eine Frau.\n";
+  }
+  if (person.istMann()) {
+    cout << person.getName() << " ist ein Mann.\n";
+  }
+}
 ```
 
 
