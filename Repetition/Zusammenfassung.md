@@ -897,31 +897,470 @@ Abhängigkeit mehrerer Klassen ist nach diesem Muster leicht möglich.
 ## Zeiger
 
 ```cpp
+int* ip;		//zeigt auf beliebige Adresse
+int i = 99;
+ip = &i;		//Weist ip die Adresse von i zu
+int *ip2 {&i};		//direkte Initialisierung mit Definition
+
+Zugriff auf Wert:
+
+i = 99;
+*ip = 99;
+*ip2 = 99;
 
 ```
+
+```cpp
+int* ip;		//zeigt auf beliebige Adresse
+int i = 99;
+ip = &i;		//Weist ip die Adresse von i zu
+int* ip2{ &i };		//direkte Initialisierung mit Definition
+
+cout << "ip: " <<ip <<  "\n";
+cout << "&i: " << &i << "\n";
+cout << "*ip: "<< *ip << "\n";
+cout << "&ip: " <<&ip <<  "\n";
+
+ip: 0000004FE2FFF5A4
+&i: 0000004FE2FFF5A4
+*ip: 99
+&ip: 0000004FE2FFF588
+```
+### Nullpointer
+Um sich zu merken, dass ein Zeiger noch nicht oder nicht mehr auf ein definiertes
+Objekt zeigt, kann ein Null-Zeiger verwendet werden
+
+
+### Dereferenzieren
+auf das Objekt, auf welches der Zeiger zeigt, zugreifen. Im Falle eines Funktionszeigers z. B. die referenzierte Funktion aufrufen
+
+Die Dereferenzierung eines Zeigers mit dem *-Symbol kennen Sie. Für den Zugriff auf
+die inneren Elemene von Strukturen und Unions über Zeiger gibt es den Pfeiloperator ->.
+
+```cpp
+struct Struktur {
+	int x;
+	int y;
+};
+// ...
+Struktur s { 4, 9};
+std::cout << s.x << ’\n’; // direkter Zugriff mit Punktoperator
+Struktur* sptr {&s}; // Zeiger auf s
+std::cout << sptr->x << ’\n’; // Zugriff mit Pfeiloperator
+```
+
+## C-Arrays
+Der Zugriff auf ein einzelnes Element eines C-Arrays geht über den von den Vektoren bekannten Indexoperator [ ]. Bei einer zweidimensionalen Tabelle ist zusätzlich die
+Spaltennummer anzugeben, zum Beispiel [6][3].
+
+* Ein Zeiger ist der symbolische Name für einen Speicherplatz, der einen Wert enthält,
+der als Adresse benutzt werden kann.
+* Ein C-Array ist ein symbolischer Name für die Anfangsadresse eines Bereichs im
+Speicher. Der Name wird wie ein konstanter Zeiger behandelt: Eine C-Array-Variable
+ist nicht änderbar, auch wenn der Bereich, auf den sie zeigt, veränderbar ist.
+* Der C-Arraytyp enthält die Größeninformation, das heißt, die Information über die
+Anzahl der Elemente. Diese Information ist jedoch nicht in einer Funktion sichtbar,
+wenn nur das C-Array als Parameter übergeben wird. Ein Beispiel werden Sie bald
+sehen (Listing 4.24 auf Seite 236).
+
+```cpp
+//Initialisieren
+int carray[10] = {1,2,3,4,5,6,7,8,9,10};	//Typ int[10]
+
+//Iterieren:
+for int val: carray) {
+	cout << val;
+}
+
+//Lesen:
+int x = carray[5];
+
+//Schreiben:
+carray[7] = 17;
+
+//Pointer:
+int* ptr = carray;	//Pointer zeigt auf carray[0]
+*ptr = 99;	//carray[0] wird zu 99
+```
+
+
+### Iterieren
+ Eine andere Methode benutzt Zeiger und die Funktionen begin() und end():
+
+```cpp
+#include <iostream>
+#include <iterator> // begin() und end()
+int main() {
+	int carray[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	auto anfang{std::begin(carray)};
+	while (anfang != std::end(carray)) {
+		std::cout << *anfang++ << ’\n’;
+	}
+}
+```
+Dabei entspricht end(carray) dem Ausdruck (begin(carray) + size(carray)). Der Zeiger end(carray) zeigt also auf die Position nach dem letzten Element. end(carray) darf
+nicht dereferenziert werden. Dies wird durch die while-Bedingung sichergestellt. Der
+Header \<iterator> muss inkludiert werden.
+
+#### range based for
+Eleganter und kürzer zu formulieren ist die bekannte Kurzform der forSchleife, die auch für C-Arrays funktioniert:
+
+```cpp
+#include <iostream>
+int main() {
+	int carray[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	for(auto elem : carray) {
+		std::cout << elem << ’\n’;
+	}
+}
+```
+
+### Rechnen mit Zeigern
+
+Wenn ein Zeiger inkrementiert oder dekrementiert wird, zeigt er nicht auf die nächste
+Speicheradresse, sondern auf die Adresse des nächsten Werts.
+
+```cpp
+//key in einem C-Array suchen
+// Definitionen
+const int n = ...
+int a[n + 1]; // C-Array
+int key = ... // gesuchtes Element
+int i {n}; // Ergebnisvariable: i = 0..n – 1 : gefunden, i = n : nicht gefunden!
+// ...
+// Ausführung
+a[n] = key;
+int *p {a};
+while (*p++ != key);
+i = p - a - 1; // Zeigerarithmetik
+```
+### C-Strings
+Eine C-Zeichenkette (englisch string) ist ein Spezialfall eines C-Arrays. Mit C-String
+meint man eine Folge von Zeichen des Typs char, die mit ’\0’ abgeschlossen wird.
+
+```cpp
+const car hello[3] = "hi";
+//enthält {'h', 'i', '\0'}
+```
+
+### This-Pointer
+this ist ein Schlüsselwort, das innerhalb einer Elementfunktion einen Zeiger auf das
+Objekt darstellt. Weil this der Zeiger auf das Objekt ist, wird das Objekt selbst durch
+*this benannt, ganz in Analogie zu den Zeigern, die wir schon kennen: *ptr = 3; weist
+den Wert 3 dem Objekt zu, auf das ptr zeigt.
+
+*Innerhalb einer Methode bezeichnet this einen Zeiger auf das aktuelle Objekt und \*this
+das Objekt selbst, für das die Methode aufgerufen wird.*
+
+```cpp
+#include <iostream>
+
+class ThisDemo {
+public:
+  int get() const 
+  { 
+    return wert; 
+  }
+
+  // Addition von w auf das Attribut wert:
+  ThisDemo& add(int w)                      // Rückgabe per Referenz!
+  {
+    wert += w;
+    return *this;                           // Rückgabe des Objekts
+  }
+  // Zuweisung von td (Ersatz für =-Operator):
+  ThisDemo& assign(const ThisDemo& td)      // Rückgabe per Referenz!
+  { 
+    wert = td.wert;
+    return *this;
+  }
+private:
+  int wert = 0;
+};
+
+int main()
+{
+  ThisDemo td;
+  td.add(1);                                // Rückgabewert wird ignoriert
+  std::cout << td.get() << '\n';            // 1
+  td.add(2).add(3);                         // *** Verkettung von Aufrufen
+  std::cout << td.get() << '\n';            // 6
+  ThisDemo a;
+  ThisDemo b;
+  a.assign(b.assign(td));                   // entspricht a = b = td;
+  std::cout << a.get() << '\n';             // 6
+}
+```
+
+
+
 
 ```cpp
 
 ```
 
-```cpp
 
-```
 
-```cpp
-
-```
 
 ```cpp
 
 ```
 
+
+
+
 ```cpp
 
 ```
 
+
+
+
 ```cpp
 
 ```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+
 
 

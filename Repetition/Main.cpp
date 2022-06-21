@@ -5,15 +5,19 @@
 
 using namespace std;
 
+struct Struktur {
+	int x;
+	int y;
+};
+// ...
 
 int main() {
 
-	string food = "Pizza";
-	string& meal = food;
-	cout << food << "\n";
-	cout << meal << "\n";
+Struktur s{ 4, 9 };
+std::cout << s.x << "\n"; // direkter Zugriff mit Punktoperator
+Struktur* sptr{ &s }; // Zeiger auf s
+std::cout << sptr->x << "\n";
+
+
 	return 0;
-
-
-
 }
