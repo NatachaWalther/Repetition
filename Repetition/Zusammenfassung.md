@@ -617,6 +617,24 @@ void addiere_7(int& x) // int& = Referenz auf int {
 Mehrere Funktionen mit selbem Namen und anderen parametern, bsp. Print Funktion.
 
 
+### Inline Funktionen
+
+
+
+```cpp
+inline int quadrat(int x){
+	return x*x;
+}
+```
+
+### constexpr Funktionen
+werden zur Übersetzungszeit berechnet (Bsp als ```constexpr size_t SIZE = 5;```)
+
+constexpr-Funktionen sind gleichzeitig inline. Das bedeutet, dass Deklaration und Definition in derselben Übersetzungeinheit sein müssen. Damit der Compiler die Funktion
+nutzen kann, muss die Definition vor dem Aufruf von ihm gelesen worden sein. Die
+Definition einer constexpr-Funktion, die von mehreren Übersetzungseinheiten genutzt
+werden soll, gehört daher in eine Header-Datei. Das Schlüsselwort inline entfällt
+
 ## Makros
 
 #include liest Dateien ein
@@ -644,35 +662,27 @@ Schema für den Aufbau einer Header-Datei mit dem Namen fn.h
 #endif // FN_H
 ```
 
-## Modulare Programmgestaltung
+## Namensräume
 
-
-
-
-
-
-
-
+Sichbarkeitsbereich (Scope) 
 
 ```cpp
-
+// Deklaration
+namespace SpecialSoftwareGmbH_KlassenBibliothek {
+// ....
+}
+// Abkürzung
+namespace sskb = SpecialSoftwareGmbH_KlassenBibliothek;
+// Benutzung der Abkürzung
+using namespace sskb;
 ```
 
+## Auto
 
-```cpp
-
-```
-
-
-```cpp
-
-```
+Bei constexpr- und anderen inline-Funktionen liest der Compiler den gesamten Funktionskörper vor der ersten Verwendung, einschließlich der return-Anweisung. Das ermöglicht dem Compiler, den Rückgabetyp zu ermitteln, sowohl in der Funktionsdefinition, als auch beim Aufruf der Funktion. In solchen Fällen muss man nicht den Datentyp
+erst nachsehen, sondern kann das bekannte Schlüsselwort auto verwenden.
 
 
-```cpp
-
-
-```
 
 
 ```cpp
