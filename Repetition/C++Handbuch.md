@@ -699,6 +699,41 @@ int main() {
 
 # Kapitel 10 - Fehlerbehandlung
 
+Exception handling in C++ consists of three keywords: try, throw and catch:
+
+* The *try* statement allows you to define a block of code to be tested for errors while it is being executed.
+* The *throw* keyword throws an exception when a problem is detected, which lets us create a custom error.
+* The *catch* statement allows you to define a block of code to be executed if an error occurs in the try block.
+
+The try and catch keywords come in pairs
+
+```cpp
+#include <iostream>
+using namespace std;
+ 
+int main()
+{
+   int x = -1;
+ 
+   // Some code
+   cout << "Before try \n";
+   try {
+      cout << "Inside try \n";
+      if (x < 0)
+      {
+         throw x;
+         cout << "After throw (Never executed) \n";
+      }
+   }
+   catch (int x ) {
+      cout << "Exception Caught \n";
+   }
+ 
+   cout << "After catch (Will be executed) \n";
+   return 0;
+}
+```
+
 ```cpp
 #include <iostream>            // cout, cerr
 #include <vector>
@@ -744,7 +779,7 @@ int main(int argc, const char* argv[]) {
 
 Throw löst eine Ausnahme aus. 
 
-Instanz der Klasse std::invalid_argument erzeugen, die den fehler repräsentiert.
+Instanz der Klasse std::invalid_argument erzeugen, die den Fehler repräsentiert.
 
 ```cpp
 if(args.size() == 0) {     // process erwartet Parameter
@@ -755,36 +790,124 @@ if(args.size() == 0) {     // process erwartet Parameter
         }
     }
 ```
+open() wirft die Exception selber und räumt auch auf.
+
+```cpp
+file.open(filename);
+```
+Rohe Zeiger, die mit new erstellt werden, müssen manuell entsorgt werden.
+## Aufrufstapel abwickeln
+
+In Main wird innerhalb des try-Blocks jede geworfene Exception geprüft und die Befehle innerhalb des catch-Blocks der Reihe nach durchgearbeitet werden. 
+
 
 
 ```cpp
+int main(int argc, const char* argv[]) {
+    try {                                      // Block mit Fehlerbehandlungen
+        process(
+          vector<string>{argv+1, argv+argc} ); // const char*[] nach vector<string>
+        return 0;
+    } catch(std::exception &exc) {  // Fehlerbehandlung
+        std::cerr << "Es trat ein Fehler auf: " << exc.what() << "\n";
+        return 1;
+    }
+}
+```
+exc.what() gibt beispielsweise den Text der Fehlermeldung bei std::invalid_argument mit.
 
+## Kleinere Fehlerbehandlung
+Soll das Programm nicht abgebrochen werden, sondern mit der nächsten Datei weitergeführt werden, kommt die Fehlerbehandlung in die for-SChleife.
+
+```cpp
+for(const string filename : args) {
+            cout << filename << ": ";
+            try {
+            cout << zaehleWoerter(filename) << std::endl;
+            } catch (std::exception &exec) {
+                cout << "Fehler: " << exc.what() << "\n";
+            }
+}
+```
+## rethrow
+
+Innerhalb eines catch-Blocks ein throw ohne weiteres Argument nutzen, um gerade geworfene Exception unverändert weiterzuwerfen.
+
+```cpp
+for(const string filename : args) {
+            cout << filename << ": ";
+            try {
+            cout << zaehleWoerter(filename) << std::endl;
+            } catch (std::exception &exec) {
+                cout << "Fehler: " << exc.what() << "\n";
+                throw;
+            }
+}
+```
+## catch Reihenfolge
+Der erste passende Handler wird ausgeführt. 
+```cpp
+try {
+    //Code here
+}catch(std::invalid_argument &exc){          //erster Handler
+    cerr << "Ungültiges Argument: " << exc.what() << "\n";
+    }catch(std::ios_base_failure &exc){      //zweiter Handler
+    cerr << "Dateifehler: " << exc.what() << "\n";
+    }catch(std::exception &exc){            //dritter Handler
+    cerr << "Es trat ein Fehler auf: " << exc.what() << "\n";
+    } catch(...) {                          //vierter und letzter Handler
+        cerr << "Es trat ein Fehler auf \n";
+    }
+    return 1;
+```
+There is a special catch block called the ‘catch all’ block, written as catch(…), that can be used to catch all types of exceptions. For example, in the following program, an int is thrown as an exception, but there is no catch block for int, so the catch(…) block will be executed. 
+
+```cpp
+#include <iostream>
+using namespace std;
+ 
+int main()
+{
+    try  {
+       throw 10;
+    }
+    catch (char *excp)  {
+        cout << "Caught " << excp;
+    }
+    catch (...)  {
+        cout << "Default Exception\n";
+    }
+    return 0;
+}
+```
+
+## Exceptions in der Standardbibliothek
+Exception | Beschreibung
+---|---
+bad_alloc |Exception thrown on failure allocating memory (class )
+bad_cast|Exception thrown on failure to dynamic cast (class )
+bad_exception|Exception thrown by unexpected handler (class )
+bad_function_call |Exception thrown on bad call (class )
+bad_typeid|Exception thrown on typeid of null pointer (class )
+bad_weak_ptr |Bad weak pointer (class )
+ios_base::failure|Base class for stream exceptions (public member class )
+logic_error|Logic error exception (class )
+runtime_error|Runtime error exception (class )
+
+```cpp
 
 ```
 
 
 ```cpp
 
-
 ```
 
 
 ```cpp
 
-
 ```
 
-
-```cpp
-
-
-```
-
-
-```cpp
-
-
-```
 
 
 
