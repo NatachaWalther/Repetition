@@ -468,8 +468,296 @@ int main()
 ```
 # Kapitel 7 - Funktionen
 
-```cpp
+## Deklaration und Definition
 
+
+```cpp
+//Definition
+int addTwo(int a, int b) {
+    return a + b;
+}
+
+//Deklaration -> im Header
+int addTwo(int a, int b);       //a und b können weggelassen werden (int, int)
+
+//Aufrufen
+addTwo(3, 5);
+```
+## Parameter
+
+### Call-by-Value
+
+Kopiert den Wert und nutzt eine Kopie in der Funktion
+
+```cpp
+int add(int a, int b) {
+    a += b;
+    return a;
+}
+
+//a wird nicht verändert
+```
+
+### Call-by-Reference
+
+Parameter als Referenz übergeben, dann wird die verändert.
+```cpp
+int add(int& a, int& b) {
+    a += b;
+    return a;
+}
+
+//a wird verändert
+```
+
+### Vorwärtsdeklaration
+
+Funktion vorher deklarieren, damit sie schon bekannt ist. 
+
+## Funktionen überladen
+
+Mehrmalige Definition mit verschiedenen Datentypen.
+
+
+```cpp
+#include <iostream>
+
+void print(int wert) { std::cout << "int-Wert: " << wert << "\n"; }
+void print(double wert) { std::cout << "double-Wert: " << wert << "\n"; }
+void print(int w1, double w2) { std::cout << "Werte: "<<w1<<", "<<w2<<"\n"; }
+
+int    add(int n, int m) { return n + m; }
+double add(double a, double b) { return a + b; }
+
+int main() {
+    print( add(3, 4) );        // add(int, int) und print(int)
+    print( add(3.25f, 1.5f) ); // add( double, double) und print(double)
+    print( 7, 3.25 );          // print(int, double)
+}
+```
+## Default Parameter
+
+Standardwerte für Parameter die überschrieben werden können.
+
+```cpp
+int add(int n=0, int m=0, int o=0, int p=0, int q=0) {
+    return n+m+o+p+q;
+}
+int main() {
+    std::cout << add(1,2,3,4,5) << "\n";
+    std::cout << add(1,2,3,4) << "\n"; // wie add(1,2,3,4,0)
+    std::cout << add(1,2,3) << "\n";   // wie add(1,2,3,0,0)
+    std::cout << add(1,2) << "\n";     // wie add(1,2,0,0,0)
+    std::cout << add(1) << "\n";       // wie add(1,0,0,0,0)
+    std::cout << add() << "\n";        // wie add(0,0,0,0,0)
+}
+```
+Damit braucht es nur eine add Variante, die bis zu 5 Parameter annehmen kann!
+
+## Inline Funktion
+
+Spart Rechenzeit bei kurzen Funktionen
+
+```cpp
+inline int func(double a, double b, double c);
+```
+
+# Kapitel 8 - Anweisungen im Detail
+
+## if
+```cpp
+if (zahl < 5) {
+    cout << "Kleiner 5";
+} else if (zahl < 10) {
+    cout "Kleiner 10";
+}else {
+    cout << "Grösser 10";
+}
+```
+
+## while
+```cpp
+wile (zahl < 100){
+    summe += zahl;
+    zahl++;
+}
+```
+## do-while
+```cpp
+int main() {
+    std::string line;
+    do {                            // mindestens einmal getline ausführen
+       std::getline(std::cin, line);
+       if(!std::cin) break;         // Fehler oder Dateiende
+    } while(line != "quit");        // Ende bei bestimmter Eingabe
+}
+```
+## for
+```cpp
+for (int i = 0; i < 100; i++){
+    summe += i;
+}
+```
+### range-based-for
+`for(Ziel : Container) Anweisung`
+```cpp
+vector<int> primzahlen {2};
+
+void testePrim(int n) {
+    for(int zahl : primzahlen) {
+        if(zahl*zahl > n) {
+            return true;
+        } if(n%teil == 0) {
+            return false;
+        }
+    }return true;
+}
+```
+## switch
+```cpp
+#include <string>
+#include <vector>
+#include <iostream>       // cout
+
+void rechner(std::ostream& out, std::string input) {
+    std::vector<int> stapel {};
+    for(char c : input) {
+        if(c>='0' && c<='9') {
+            stapel.push_back( c-'0' ); // Zahlenwert des Zeichens
+            continue;     // nächste Schleifeniteration
+        }
+        int top = 0;
+        int second = 0;
+        switch(c) {       // Bedingung auf zeichen
+        case @'@+@'@:
+            top = stapel.back(); stapel.pop_back();
+            second = stapel.back(); stapel.pop_back();
+            stapel.push_back(second + top);
+            break;
+        case @'@-@'@:
+            top = stapel.back(); stapel.pop_back();
+            second = stapel.back(); stapel.pop_back();
+            stapel.push_back(second - top);
+            break;
+        case @'@*@'@:
+            top = stapel.back(); stapel.pop_back();
+            second = stapel.back(); stapel.pop_back();
+            stapel.push_back(second * top);
+            break;
+        case @'@=@'@:
+            for(int elem : stapel) { out << elem; }
+            out << "\n";
+            break;
+        case @'@ @'@:
+            break;
+        default:
+            out << "\n'" << c << "' verstehe ich nicht.\n";
+        } /* switch */
+    } /* for c */
+}
+int main(int argc, const char* argv[]) {
+    if(argc > 1) {
+        rechner(std::cout, argv[1]);
+    } else {
+        // 3 + 4 * 5 + 6 mit Punkt- vor Strichrechnung ergibt 29
+        rechner(std::cout, "345*+6+=");
+    }
+}
+```
+
+## break
+Aus Schleife springen, macht mit Anweisung nach dem Block weiter.
+
+## continue
+
+Rest des Schleifendurchlaufs abbrechen und mit nächster Interation weitermachen.
+
+
+## return
+
+Aus Funktion herausspringen.
+
+
+
+## try-catch und throw
+*Try* umschliesst Programmcode in dem ein Fehler erwartet wird, *catch* übernimmt die Fehlerbehandlung.
+```cpp
+#include <iostream>
+int main() {
+    try {                                        // Beginn des try-Blocks
+        for(int n=1; ; n=n*2) {
+            if(n < 0) {
+                throw "Es gab einen Ueberlauf";  // Fehler auslösen
+            }
+        }
+    }                                            // Ende des try-Blocks
+    catch(const char *fehler) {                  // falls dieser Fehler auftritt, ...
+      std::cout << "Fehler: " << fehler << "\n"; // ... behandle ihn so
+    }
+}
+```
+
+# Kapitel 10 - Fehlerbehandlung
+
+```cpp
+#include <iostream>            // cout, cerr
+#include <vector>
+#include <string>
+#include <fstream>             // ifstream
+#include <stdexcept>           // invalid_argument
+using std::vector; using std::string; using std::cout; using std::ifstream;
+size_t zaehleWoerter(const string& filename) { // 0 oder größer
+    std::ifstream file{};      // ungeöffnet erzeugen
+    // anmelden für Exceptions:
+    file.exceptions(ifstream::failbit | ifstream::badbit);
+    file.open(filename);       // könnte eine Exception auslösen
+    size_t count = 0;
+    string wort;
+    file.exceptions(ifstream::badbit); // EOF keine Exception mehr
+    while(!file.eof()) {       // noch nicht am Ende?
+        file >> wort;   ++count;
+    }
+    return count-1;            // @MINUS@1: am EOF wurde noch ein Wort gelesen
+}
+void process(const vector<string>& args) {
+    if(args.size() == 0) {     // process erwartet Parameter
+        throw std::invalid_argument{"Kommandozeilenarg. fehlt"}; // auslösen
+    } else {
+        for(const string filename : args) {
+            cout << filename << ": " << zaehleWoerter(filename) << std::endl;
+        }
+    }
+}
+int main(int argc, const char* argv[]) {
+    try {                                      // Block mit Fehlerbehandlungen
+        process(
+          vector<string>{argv+1, argv+argc} ); // const char*[] nach vector<string>
+        return 0;
+    } catch(std::exception &exc) {  // Fehlerbehandlung
+        std::cerr << "Es trat ein Fehler auf: " << exc.what() << "\n";
+        return 1;
+    }
+}
+```
+
+## Ausnahmen auslösen und behandeln
+
+Throw löst eine Ausnahme aus. 
+
+Instanz der Klasse std::invalid_argument erzeugen, die den fehler repräsentiert.
+
+```cpp
+if(args.size() == 0) {     // process erwartet Parameter
+        throw std::invalid_argument{"Kommandozeilenarg. fehlt"}; // auslösen
+    } else {
+        for(const string filename : args) {
+            cout << filename << ": " << zaehleWoerter(filename) << std::endl;
+        }
+    }
+```
+
+
+```cpp
 
 
 ```
@@ -478,50 +766,41 @@ int main()
 ```cpp
 
 
-
 ```
-
-
-
-
-
 
 
 ```cpp
 
 
 ```
-# Kapitel 4 - Die Grundbausteine von C++
+
 
 ```cpp
 
 
 ```
-# Kapitel 4 - Die Grundbausteine von C++
+
 
 ```cpp
 
 
 ```
-# Kapitel 4 - Die Grundbausteine von C++
+
+
+
+# Kapitel 11 - Die Grundbausteine von C++
 
 ```cpp
 
 
 ```
-# Kapitel 4 - Die Grundbausteine von C++
+# Kapitel 12 - Die Grundbausteine von C++
 
 ```cpp
 
 
 ```
-# Kapitel 4 - Die Grundbausteine von C++
-
-```cpp
-
-
-```
-# Kapitel 4 - Die Grundbausteine von C++
+# Kapitel 13 - Die Grundbausteine von C++
 
 ```cpp
 
