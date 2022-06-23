@@ -894,36 +894,334 @@ ios_base::failure|Base class for stream exceptions (public member class )
 logic_error|Logic error exception (class )
 runtime_error|Runtime error exception (class )
 
+
+Hierarchie im Lehrbuch: Abbildung 7.1: Exception-Hierarchie in C++
+
+## Exception Sicherheit
+
+Ein Programm ist exception-sicher (englisch exception safe), wenn Laufzeitfehler keine
+nachteiligen Auswirkungen haben. Um den Begriff zu präzisieren, gibt es verschiedene
+Stufen:
+1. Auf der niedrigsten Stufe gibt es keinerlei Zusicherungen, ob und wie sich Fehler
+auswirken.
+2. In dieser Stufe kann ein Programm zwar falsche Daten erzeugen, es soll aber weder
+abstürzen noch Speicherlecks oder verwitwete Objekte hinterlassen.
+3. Eine starke Exception-Sicherheit liegt vor, wenn eine Operation entweder vollständig oder, bei einem Fehler, gar nicht oder so ausgeführt wird, dass das betroffene
+Objekt anschließend im selben Zustand wie vor der fehlerhaften Operation ist. Dies
+entspricht einem Commit bzw. Rollback in der Datenbank-Terminologie. Ein Beispiel
+ist die folgende Funktion zum Ablegen eines Elements auf einem Stack (Variante der
+Funktion von Seite 291):
+
 ```cpp
+template<typename T>
+void SimpleStack<T>::push(const T& x)
+{
+if (full()) {
+throw std::logic_error("Stack-Overflow!");
+}
+array[anzahl++] = x;
+}
+```
+Wenn noch Platz auf dem Stack ist, hat push() die gewünschte Wirkung. Wenn nicht,
+bleibt der Stack in seinem vorherigen Zustand.
+
+4. In der sichersten Stufe wird garantiert, dass keine Fehler auftreten oder aber alle auftretenden Fehler abgefangen werden, sodass kein Fehler nachteilige Auswirkungen
+hat. Möglicherweise auftretende Exceptions werden nicht zum Aufrufer durchgereicht.
+
+# Kapitel 12 - Von der Struktur zur Klasse
+
+## Struct
+Bündelung mehrerer Datenfelder zu einem neuen Datentyp.
+
+```cpp
+#include <string>
+#include <iostream>                      // cout
+using std::string; using std::cout;
+struct Person {                          // definiert den neuen Typ Person
+    string name_;
+    int alter_;
+    string ort_;
+};                                       // abschließendes Semikolon
+void drucke(Person p) {                  // ganze Person als ein Parameter
+    cout << p.name_ << " ("<< p.alter_<<") aus " // Zugriff per Punkt
+        << p.ort_ << "\n";
+}
+int main() {
+    Person otto {"Otto", 45, "Kassel" }; // Initialisierung
+    drucke(otto);                        // Aufruf als Einheit
+}
+```
+
+*Typendefinitionen wie Strukturen und Klassen mit Semikolon abschliessen!!*
+
+## Initialisierung
+
+Initialisierung mit geschweiften Klammern. Werden sie leer gelassen `Person Otto{};` werden die Werte mit ihren Defaultwerten (0, bzw. leere Strings) initialisiert. 
+
+## Rückgabe eigener Werte
+Selber erstellte Datentypen können genau so zurückgegeben werden. 
+```cpp
+// Ausschnitt
+Person erzeuge(string name, int alter, string ort) {
+    return Person{name, alter, ort};       // direkt zurückgegeben
+    //Peron kann weggelassen werden (return {name, alter, ort};) wenn erzeuge nicht auto ist.
+    //Auto verlangt auch Konstruktornamen
+    //auto erzeuge(string name, int alter, string ort) {}
+}
+int main() {
+    drucke(erzeuge("Otto", 45, "Kassel")); // Rückgabe direkt verwendet
+}
+```
+##Methoden
+
+Funktionen für einen bestimmten Datentypen.
+
+```cpp
+#include <string>
+#include <iostream>
+using std::string; using std::cout;
+struct Person {
+    string name_;
+    int alter_;
+    string ort_;
+    void drucke();      // Funktion als Methode des Typs
+};
+void Person::drucke() { // Name der Methode wird um Person:: erweitert
+    cout << name_       // in einer Methode können Sie direkt auf Felder zugreifen
+        << " ("<< alter_<<") aus " << ort_ << "\n";
+}
+int main() {
+    Person otto {"Otto", 45, "Kassel" };
+    otto.drucke();      // Aufruf der Methode für eine Variable des Typs
+}
+```
+Innerhalb der methode kann normal auf Datenfelder und Methoden der Klasse zugegriffen werden (name_ statt p.name_).
+
+Dies wird intern vom Compiler als this-> interpretiert. Eine Methode hat den implizierten Parameter Typ* this. Der steht für die Speicheradresse der Instanz, auf die die Methode aufgerufen wird. 
+
+```cpp
+//Wird vom Compiler gemacht:
+string Person::gruss(){
+    return "Hallo " + this->name_ + "aus " + this->ort_;
+}
+```
+Der this Parameter ändert sich beim Aufruf der Methoden von verschiedenen Objekten.
+
+anna |  
+---|---
+[0] |name_ = "Anna"
+[1] |alter_ = 33
+[2] |ort_ = "Hof"
+
+nina |  
+---|---
+[0] |name_ = "Nina"
+[1] |alter_ = 25
+[2] |ort_ = "Wyk"
+
+```cpp
+anna.gruss()
+    this -> geht auf Tabelle Anna
+    name_ : this+0
+    ort_ : this+2
+    
+    nina.gruss()
+    this -> geht auf Tabelle Nina
+    name_ : this+0
+    ort_ : this+2
+```
+
+Freie Funktion (nicht an Objekt gebunden)
+```cpp
+string gruss(Person * const p){
+    return "Hallo " + p->name_ + "aus " + p->ort_;
+}
+```
+
+## Bessere Datenausgabe
+
+Wenn drucke() mit cout ist, kann es nur so ausgegeben werden. Was ist mit Errors? 
+
+Bessere Variante:
+```cpp
+void Person::drucke(std::ostream& os) {     //Ziel der Ausgabe als Parameter
+    os << name_ << " ("<< alter_<<") aus " << ort_;
+}
+int main() {
+    Person karl {"Karl", 12, "Stetten"};
+    karl.drucke(cout); // auf dem Bildschirm
+    cout << "\n";
+    std::ofstream datei {"personen.txt"};
+    karl.drucke(datei);        // in eine Datei
+    // automatischer Test:
+    std::ostringstream oss{};  // schreibt in einen string
+    karl.drucke(oss);
+    if(oss.str() == "Karl (12) aus Stetten") {
+        cout << "ok\n";
+    } else {
+        cout << "Fehler in Person::drucke!\n";
+        return 1;              // Fehler nach außen weiterleiten
+    }
+}
+```
+
+## Methoden inline definieren
+
+Kurze Methoden vor Ort definieren. 
+
+```cpp
+#include <string>
+#include <iostream>    // ostream
+
+using std::string; using std::ostream;
+
+struct Person {
+    string name_;
+    int alter_;
+    string ort_;
+    ostream& drucke(ostream& os) {  // Methode inline definiert
+        return os << name_ << " ("<< alter_<<") aus " << ort_;
+    }
+};
+```
+## Konstruktoren
+
+Methode zur Initialisierung der Struktur
+
+```cpp
+struct Person {
+    string name_;
+    inr alter_;
+    string ort_;
+    Person();               //Deklaration Konstruktor
+}
+
+Person::Person()            //Definition Konstruktor
+    : name_{"Kein Name"}    //Initialisierungswert name_
+    , alter_{-1}            //Initialisierungswert alter_
+    , ort_{"Kein Ort}       //Initialisierungswert ort_
+    {}                      //leerer Funktionskörper
+
+
+Person p{}                  //Initialisierung
+```
+
+Konstruktoren mit mehreren Argumenten:
+```cpp
+#include <string>
+using std::string;
+
+struct Person {
+    string name_;
+    int alter_;
+    string ort_;
+    Person();                          // Konstruktor ohne Argumente
+    Person(string n, int a, string o); // Konstruktor mit drei Argumenten
+    Person(string n, int a);           // Konstruktor mit zwei Argumenten
+    Person(string n);                  // Konstruktor mit einem Argument
+};
+
+Person::Person() 
+  : name_{"kein Name"}, alter_{-1}, ort_{"kein Ort"} { } 
+Person::Person(string n, int a, string o) 
+  : name_{n}, alter_{a}, ort_{o} { } 
+Person::Person(string n, int a)
+  : name_{n}, alter_{a}, ort_{"kein Ort"} { }
+Person::Person(string n)
+  : name_{n}, alter_{-1}, ort_{"kein Ort"} { }
+```
+### Default Werte
+
+Dann müssen die Werte nicht im Konstruktor aufgenommen werden.
+
+```cpp
+#include <string>
+using std::string;
+struct Person {
+    string name_ = "kein Name";
+    int alter_ = -1;
+    string ort_ = "kein Ort";
+    Person() {}
+    Person(string n, int a, string o)
+      : name_{n}, alter_{a}, ort_{o} { }
+    Person(string n, int a)
+      : name_{n}, alter_{a} { }
+    Person(string n)
+      : name_{n} { }
+};
+```
+### Konstruktor Delegation
+
+Initialisierung der Werte an einen Konstruktor delegieren. Konstruktor mit der maximalen Anzahl an Argumenten implementieren und an diesen die anderen Initialisierungen delegieren.
+
+Dabei lässt man den Körper des delegierenden Konstruktoren leer. 
+
+```cpp
+#include <string>
+using std::string;
+
+struct Person {
+    string name_;
+    int alter_;
+    string ort_;
+
+    Person(string n, int a, string o)          // delegierter Konstruktor
+      : name_(n), alter_(a), ort_(o) { }       // ... ausimplementiert
+    Person() : Person{"kein Name",-1,"kein Ort"} { }       // delegierend
+    Person(string n, int a) : Person{n, a, "kein Ort"} { } // delegierend
+    Person(string n) : Person{n, -1, "kein Ort"} { }       // delegierend
+};
+```
+### Defaultwerte für Konstruktorparameter
+
+```cpp
+#include <string>
+using std::string;
+
+struct Person {
+    string name_;
+    int alter_;
+    string ort_;
+
+    Person(string n = "N.N.", int a = 18, string o = "Berlin")
+      : name_(n), alter_(a), ort_(o) { }
+};
+```
+
+## Struct vs. Klasse
+
+Struct zum Halten von Daten mit wenig verhalten durch Methoden
+
+Class bei Daten als Implementierungsdetails und das Verhalten wichtiger ist.
+
+
+
+
+# Kapitel 13 - Namensräume und Qualifizierer
+
+## std
+
+
+
+```cpp
+
 
 ```
 
-
 ```cpp
 
-```
-
-
-```cpp
 
 ```
-
-
-
-
-# Kapitel 11 - Die Grundbausteine von C++
 
 ```cpp
 
 
 ```
-# Kapitel 12 - Die Grundbausteine von C++
 
 ```cpp
 
 
 ```
-# Kapitel 13 - Die Grundbausteine von C++
 
 ```cpp
 
