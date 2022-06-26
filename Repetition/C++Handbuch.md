@@ -1198,8 +1198,650 @@ Class bei Daten als Implementierungsdetails und das Verhalten wichtiger ist.
 
 
 # Kapitel 13 - Namensräume und Qualifizierer
+## Namensräume
+In jedem Bereich kann ein Name nur für eine Entität stehen. Es kann also nicht zwei Variablen mit demselben Namen im selben Bereich geben. Mit Hilfe von Namespaces können wir zwei Variablen oder Memberfunktionen mit demselben Namen erstellen. 
 
-## std
+Alles was in einen Namensraum kommt, wird in dessen Bereich (scope) gepackt.
+
+```cpp
+#include <string>
+#include <iostream>                    // ostream, cout
+namespace plant {
+    class Baum {
+        std::string name_;
+    public:
+        explicit Baum(const std::string& name) : name_{name} {}
+        void print(std::ostream& os) const { os << name_; }
+    };
+    std::ostream& operator<<(std::ostream& os, const Baum& arg)
+        { arg.print(os); return os; }
+    using NadelBaum = Baum;            // für spätere Erweiterungen ...
+    using LaubBaum = Baum;             // ... vorsorgen
+    namespace beispielnamen {          // eingebetteter Namensraum
+        std::string eicheName = "Eiche";
+        std::string bucheName = "Buche";
+        std::string tanneName = "Tanne";
+    } // Ende namespace beispielnamen
+} // Ende namespace plant
+
+int main() {                           // main darf nicht in einem Namespace stehen
+    using namespace plant::beispielnamen; // alle Beispielnamen verfügbar machen
+    plant::NadelBaum tanne{ tanneName };
+    plant::LaubBaum eiche{ eicheName };
+    tanne.print(std::cout); std::cout << "\n";
+    using plant::operator<<;           // ohne geht 'cout << eiche' nicht
+    std::cout << eiche << "\n";
+}
+```
+* eingener Datentyp Baum `plant::baum`
+* Freie Funktion `operator<<`
+* Typaliase `nadelBaum` und `laubBaum`
+* Eingebetteter Namensraum `beispielnamen`
+
+Main muss ausserhalb eines Namensraums stehen. 
+
+Verwendung in main()
+```cpp
+//Variante 1
+using plant::NadelBaum; using plant::LaubBaum;
+NadelBaum tanne{tanneName;}
+LaubBaum eiche{eicheName;}
+
+//Variante 2
+using namespace plant;
+NadelBaum tanne{tanneName;}
+LaubBaum eiche{eicheName;}
+```
+Verwendung Operator<<
+
+* `using plant::operator<<;` -> Nur den Operator holen
+* `using namespace plant;` -> gesamter Namensraum holen
+
+
+```cpp
+using namespace plant;
+cout << baum << "\n";
+```
+
+```cpp
+// Here we can see that more than one variables
+// are being used without reporting any error.
+// That is because they are declared in the
+// different namespaces and scopes.
+#include <iostream>
+using namespace std;
+ 
+// Variable created inside namespace
+namespace first
+{
+    int val = 500;
+}
+ 
+// Global variable
+int val = 100;
+ 
+int main()
+{
+    // Local variable
+    int val = 200;
+ 
+    // These variables can be accessed from
+    // outside the namespace using the scope
+    // operator ::
+    cout << first::val << '\n';
+ 
+    return 0;
+}
+```
+
+
+```cpp
+// Let us see how namespace scope the entities including variable and functions:
+ 
+#include <iostream>
+using namespace std;
+ 
+// first name space
+namespace first_space
+{
+   void func()
+   {
+      cout << "Inside first_space" << endl;
+   }
+}
+ 
+// second name space
+namespace second_space
+{
+   void func()
+   {
+      cout << "Inside second_space" << endl;
+   }
+}
+ 
+int main ()
+{
+    // Calls function from first name space.
+   first_space::func();
+    // Calls function from second name space.
+   second_space::func();
+   return 0;
+}
+ 
+// If we compile and run above code, this would produce the following result:
+// Inside first_space
+// Inside second_space
+```
+
+
+```cpp
+
+// A C++ program to demonstrate use of class
+// in a namespace
+#include<iostream>
+using namespace std;
+ 
+namespace ns
+{
+    // A Class in a namespace
+    class geek
+    {
+    public:
+        void display()
+        {
+            cout<<"ns::geek::display()"<<endl;;
+        }
+    };
+}
+ 
+int main()
+{
+    // Creating Object of geek Class
+    ns::geek obj;
+ 
+    obj.display();
+ 
+    return 0;
+}
+```
+Define Methods Outside Namespace
+
+```cpp
+// A C++ code to demonstrate that we can define
+// methods outside namespace.
+#include <iostream>
+using namespace std;
+ 
+// Creating a namespace
+namespace ns
+{
+    void display();
+    class geek
+    {
+    public:
+       void display();
+    };
+}
+ 
+// Defining methods of namespace
+void ns::geek::display()
+{
+    cout << "ns::geek::display()\n";
+}
+void ns::display()
+{
+    cout << "ns::display()\n";
+}
+ 
+// Driver code
+int main()
+{
+    ns::geek obj;
+    ns::display();
+    obj.display();
+    return 0;
+}
+```
+Namespace Extension
+
+```cpp
+
+// C++ program to demonstrate namespace extension
+#include <iostream>
+using namespace std;
+ 
+// first name space
+namespace first
+{
+   int val1 = 500; 
+}
+ 
+// rest part of the first namespace
+namespace  first
+{
+   int val2 = 501; 
+}
+ 
+int main()
+{
+   cout << first::val1 <<"\n";       
+   cout << first::val2 <<"\n";
+   return 0;
+}
+```
+
+### Unnamed Namespaces / Anonym 
+* They are directly usable in the same program and are used for declaring unique identifiers.
+* In unnamed namespaces, name of the namespace in not mentioned in the declaration of namespace.
+* The name of the namespace is uniquely generated by the compiler.
+* The unnamed namespaces you have created will only be accessible within the file you created it in.
+* Unnamed namespaces are the replacement for the static declaration of variables.
+```cpp
+
+// C++ program to demonstrate working of unnamed
+// namespaces
+#include <iostream>
+using namespace std;
+ 
+// unnamed namespace declaration
+namespace
+{
+   int rel = 300;
+}
+ 
+int main()
+{
+   cout << rel << "\n"; // prints 300
+   return 0;
+}
+```
+
+### Different ways to access namespace
+
+#### "Normal Way"
+
+```cpp
+// C++ program to demonstrate accessing of variables
+// in normal way, i.e., using "::"
+#include <iostream>
+using namespace std;
+  
+namespace geek
+{
+    int rel = 300; 
+}
+  
+int main()
+{
+    // variable ‘rel’ accessed 
+    // using scope resolution operator
+    cout << geek::rel << "\n";  // prints 300
+  
+    return 0;
+}
+```
+#### Using
+
+```cpp
+// C++ program to demonstrate accessing of variables
+// in normal way, i.e., using "using" directive
+#include <iostream>
+using namespace std;
+  
+namespace geek
+{
+    int rel = 300; 
+}
+  
+// use of ‘using’ directive
+using namespace geek;
+  
+int main()
+{
+   // variable ‘rel’ accessed 
+   // without using scope resolution variable
+   cout << rel << "\n";        //prints 300
+    
+   return 0;
+}
+```
+
+### Nested Namespaces
+
+```cpp
+
+// C++ program to demonstrate nesting of namespaces
+#include <iostream>
+using namespace std;
+  
+// Nested namespace
+namespace out
+{
+  int val = 5; 
+  namespace in
+  {
+      int val2 = val;    
+  }
+}
+  
+// Driver code
+int main()
+{
+  cout << out::in::val2;   // prints 5
+  return 0;
+}
+```
+### Namespace Aliasing
+
+```cpp
+#include <iostream>
+
+namespace name1
+{
+	namespace name2
+	{
+		namespace name3
+		{
+			int var = 42;
+		}
+	}
+}
+
+// Aliasing
+namespace alias = name1::name2::name3;
+
+int main()
+{
+	std::cout << alias::var << '\n';
+}
+```
+## static macht dauerhaft
+
+Name der Vaiabeln oder Funktion ist nur innerhalb des Moduls sichtbar.
+
+Variable bleibt bei Austritt aus Gültigkeitsbereich bestehen. 
+```cpp
+#include <iostream>                     // cout
+class Keyboard {
+    Keyboard(const Keyboard&) = delete; // keine Kopie
+    const size_t nr_;                   // aktuelle Nummer
+public:
+    static inline size_t count_ = 0;    // zählt erzeugte Instanzen
+    explicit Keyboard() : nr_{count_++} {
+        std::cout << "  Keyboard().nr:"<<nr_<<"\n";
+    }
+};
+Keyboard& getKeyboard() {
+    std::cout << "  getKeyboard()\n";
+    static Keyboard keyboard{};         // statische lokale Variable
+    return keyboard;
+}
+void func() {
+    std::cout << "kbFunc...\n";
+    Keyboard& kbFunc = getKeyboard();
+}
+int main() {
+    std::cout << "kbA...\n";
+    Keyboard& kbA = getKeyboard();
+    func();
+    std::cout << "kbB...\n";
+    Keyboard& kbB = getKeyboard();
+    std::cout << "count:" << Keyboard::count_ << "\n";
+}
+```
+### Overview
+
+Sprachelement | Beschreibung
+---|---
+namespace *xyz* \{...} | neuer Namensraum *xyz*
+namespace \{...} | anonymer Namensraum; alle Bezeichner Dateilokal
+inline namespace *xyz* \{...} | eingebetteter Namensraum
+*static* globale Variable| dateilokale Variable
+*static* freie Funktion| dateilokale Funktion
+*static* Datenfeld| wird zwischen allen Instanzen der Klasse geteilt
+*static* Methode| Metdoke die ohne konkrete Instanz aufgerufen wird
+*static* lokale Variable| eine den bereich überdauernde Variable 
+using namespace *xyz* | alle Bezeichner aus dem Namensraum *xyz* importieren
+using *xyz:abc* |  Bezeichner *abc* aus dem Namensraum *xyz* importieren
+using *neu = alt*; | Typalias *neu* für den Typ *alt* einführen
+
+
+## const
+
+* mit static eine Konstante definieren `static const int MAX = 100;`
+* Rückgabewert nicht verändern `const string& getName();`
+* Parameter in der Funktion nicht ändern `void print(const string& msg)`
+* Methode verändert Objekt nicht `void Widget::drawYourself() const;`
+
+### Const mit Pointern und Referenzen
+
+* der int-Wert val ist unveränderbar `int const val`
+* Alle Datefelder und Methoden der Klasse MyClass von denen obj ein Objekt ist, sind unveränderbar `MyClass const &obj`
+* int Wert auf den Pointer zeigt ist unveränderbar `int const * ptr`
+* Der Pointer ist unveränderbar, der Wert nicht `int * const ptr`
+* inhalt und Pointer sind unveränderbar `char const * const cstring`
+
+#### Recap:
+
+* Address-of operator: `cout << &x;`
+* Pointer declarations: `int *p; or int* p;`
+* Assign Address to Pointer: `int* p; int var = 5; p = &var` (Pointer p hat Adresse von var)
+* Access value from Pointer: `cout << *p;`
+* Change value of Pointer: `*p = 15;`
+* Make a reference: `int x = 10; int& ref = x;`
+* Change value of refernce: `ref = 20;`
+
+*Das const markiert die Entität als unveränderbar, hinter der es steht!!*
+
+-> Bei der Notation mit const am Anfang, muss das führende const eins nach rechts (Bsp. Dickes Buch S. 329)
+
+#### const Paramter
+
+Parameter mit const markieren (Call by Reference) 
+```cpp
+void print(const vector<int> &primes) {
+    for(auto prime : primes) {
+        cout << prime << "\n";
+    }
+}
+```
+Der Parameter primes kann nun nicht mehr verändert werden.
+
+#### const Methoden
+
+Wie erkennt der Compiler, welche Methoden mit const aufgerufen werden dürfen, bzw das Objekt nicht verändern?
+
+```cpp
+void print (const vector <int> &primes){
+    if (primes.size() > 100) {      //das geht
+        return;
+    }
+    for(auto prime : primes) {      //geht auch
+        cout << prime << "\n";
+    }
+    primes.push_back(4);            //geht nicht
+}
+```
+Methode `size()` von vector hat ein nachgestelltes const: `size_t vector<int>::size() const;`. Dadurch weiss der Compiler, das dieser Methodenaufruf erlaubt ist. 
+
+Beispiel an eingenem Datentyp "Widget":
+
+```cpp
+class Widget {
+    unsigned x = 0, y = 0, w = 0, h = 0; // zum Beispiel
+public:
+    unsigned getLeft() const;
+    unsigned getTop() const;
+    unsigned getRight() const;
+    unsigned getBottom() const;
+    void setWidth(unsigned w);
+    void setHeight(unsigned h);
+};
+```
+Die get-Methoden können nun aufgerufen werden:
+
+```cpp
+void show(const Widget& widget){
+    drawBox(
+        widget.getLeft(), widget.getTop(),
+        widget.getRight(), widget.getBottom()
+    );
+}
+```
+setWidth() hingegen löst eine Fehlermeldung aus, da es nicht als const markiert ist.
+
+#### const Variablen
+
+Lokale Variablen in einer Funktion oder globale Variablen für Datenfelder eienr Klasse können mit const markiert werden. Sie können nur noch Initialisiert werden, können aber nciht verändert werden. 
+
+```cpp
+class Widget {
+        const int id;
+    public:
+        explicit Widget(int id_) : ind(id_) {}
+        Widget() : id(0) {}
+        void reset();
+};
+
+void Widget::reset() {              //verboten
+    id = 36;
+}
+
+const Widget widget_a = Widget{12};
+
+widget_a = Widget{24};              //geht nicht
+```
+widget_a kann nach der Initialisierung nicht mehr verändert werden.
+
+Wirksamer SChutz vor Veränderungen:
+
+```cpp
+#include <vector>
+namespace {                   // anonymer Namensraum für Konstanten
+    const unsigned DATA_SIZE = 100; /* Anzahl Elemente in Data */
+    const double LIMIT = 999.999; /* Maxwert bei Initialisierung */
+};
+std::vector<int> createData() {
+    std::vector<int> result(DATA_SIZE);
+    double currVal = 1.0;
+    for(auto &elem : result) {
+        elem = currVal;
+        currVal *= 2;         // nächster Wert ist größer
+        if(currVal > LIMIT) {
+            currVal = LIMIT;  // kein Wert darf größer sein
+        }
+    }
+    return result;
+}
+```
+#### const mit statiac
+
+* **Const im anonymen Namensraum - MAX_A** Konstante ist nur in dieser Datei bekannt, von aussen nicht zugreifbar.
+* **static im globalen Namensraum - MAX_B** Ältere Schreibweise -> Anonymer Namensraum empfohlen
+* **static const als Datenfeld - SIZE** Alle Variablen vom Typ Data teilen siche in einziges SIZE, durch const ist es unveränderbar.
+* **static const als lokale Variable - LIMIT** Variable behält ihren Wert wenn die FUnktion verlassen wird durch static, sie wird nur beim ersten Passieren initialisiert. Mit const zusammen wird die Konstante nur bei Bedarf initialisiert.
+
+
+```cpp
+namespace {
+    const int MAX_A = 12;       // das Gleiche wie MAX_B, aber kein static nötig
+}
+
+static const int MAX_B = 10;    // im globalen Namensraum
+
+struct Data {
+    static const int SIZE = 14; // als Datenfeld in einer Klasse
+}
+
+void func() {
+    static const int LIMIT =16; // als lokale Konstante
+}
+```
+
+#### constexpr
+
+Konstante die schon zur Compilezeit verwendbar ist. Beispielsweise Anlegen eines Arrays mit bestimmter Grösse:
+
+
+```cpp
+#include <array>
+int main() {
+    std::array<int, 5> arr5{};     // Literal und somit ein konstanter Ausdruck
+    std::array<int, 2+3> arr23{};  // 2+3 kann der Compiler auswerten
+    const size_t SIZE = 5;         // definiert eine Konstante
+    std::array<int, SIZE> arrSC{}; // kann der Compiler verwenden - oft
+    size_t size = 7;
+    std::array<int,size> arrVar{}; // eine Variable können Sie nicht verwenden
+}
+```
+Const: "Darf nicht zur Laufzeit verändert werden" != "Muss der Compiler zur Übersetzungszeit berechnen können"
+
+Geht nicht:
+
+```cpp
+#include <array>
+struct Data {
+    static const size_t SPAET;            // Konstante deklarieren
+    static const size_t FRUEH;            // Konstante deklarieren
+};
+
+void func() {
+    int x = Data::SPAET;                  // Konstante verwenden
+}
+
+const size_t Data::FRUEH = 10;            // Konstante definieren
+
+std::array<int, Data::FRUEH> arrFRUEH {}; // Konstante verwenden
+std::array<int, Data::SPAET> arrSPAET {}; // Konstante verwenden - geht nicht
+const size_t Data::SPAET = 10;            // Konstante definieren - nach Verwendung
+
+int main() {
+    func();
+}
+```
+
+Mit constexpr prüft der Compiler, ob er es zur Übersetzungszeit berechnen kann. 
+
+```cpp
+struct Data {
+    static constexpr size_t SPAET; // klappt nicht ohne direkte Initialisierung
+    static constexpr size_t FRUEH = 10;
+};
+constexpr size_t Data::SPAET = 10; // bei constexpr geht Definition nicht wie bei const
+```
+
+Nicht deklarieren ohne es auch direkt zu defineiren!
+
+#### un-const mit mutable
+
+Nur in Ausnahmefällen zur Analyse verwenden!
+
+```cpp
+#include <iostream>
+class Data {
+    int value_;
+    mutable size_t getCount_{0};
+  public:
+    explicit Data(int v) : value_{v} { }
+    ~Data() {
+        std::cout << "get wurde " << getCount_ << "-mal benutzt\n";
+    }
+    int get() const {
+        ++getCount_;
+        return value_;
+    }
+};
+int main() {
+    Data d{42};
+    for(int i=0; i<10; ++i) { d.get(); }
+} // Ausgabe: get wurde 10-mal benutzt
+```
+# Kapitel 15 - Vererbung
+
+```cpp
+
+
+```
 
 
 
@@ -1208,26 +1850,29 @@ Class bei Daten als Implementierungsdetails und das Verhalten wichtiger ist.
 
 ```
 
-```cpp
 
-
-```
-
-```cpp
-
-
-```
 
 ```cpp
 
 
 ```
 
+
+
 ```cpp
 
 
 ```
-# Kapitel 4 - Die Grundbausteine von C++
+
+
+
+
+
+
+
+
+
+
 
 ```cpp
 
