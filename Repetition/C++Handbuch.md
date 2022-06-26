@@ -1838,6 +1838,1709 @@ int main() {
 ```
 # Kapitel 15 - Vererbung
 
+## Beziehungen
+
+### Hat-ein-Komposition
+Objekt das aus mehreren Onjekten besteht. Das Objekt besitzt seine Komponenten, ist für deren Konstruktion und Destruktion verantwortlich. Ihre Lebensdauer ist durch diese des Objekts beschränkt.
+```cpp
+class Auto {
+    Lenkrad lenkrad;
+    std:vector<Rad> räder;
+};
+```
+### Hat-ein-Aggregation
+Dinge stehen in Beziehung mit dem Objekt, gehören ihm aber nicht. Die Lebenszeit ist unabhänging.
+
+```cpp
+class Auto {
+    Garage& garage;
+    Person& eigentümer;
+};
+```
+### Ist-ein-Vererbung
+
+Bsp. VwBulli ist-ein Auto
+* Der Bulli hat alle Eigenschaften die ein Auto hat
+* Auf jedes Objekt auf das die BEschreibung eines Bullis passt, passt auch die eines Autos
+* Die Beschreibung (Spezifikation) des Autos ist *schwächer*, die des Bullis ist *genauer*
+* Alle Bullis sind Autos aber nicht alle Autos sind Bullis!
+
+## Vererbung in C++
+
+`class Unterklasse : public Basisklasse`
+
+```cpp
+class Auto {        //Basis- oder Superklasse
+    public:
+        Lenkrad lenkrad;
+        std:vector<Rad> räder;
+};
+
+class VWBulli : public Auto {   //Unter- oder Subklasse
+    public:
+        Dekoration blümchen;
+}
+```
+Alle Datenfelder und MEthoden der Superklasse hat auchd ie Subklasse
+```cpp
+VWBulli vw{};
+vw.lenkrad;     //geht
+vw.blümchen;    //geht auch
+auto.blümchen;  //geht nicht
+```
+
+### Gemeinsamkeiten finden
+
+Mehr in 15.4
+
+```cpp
+//
+#include <iostream>  // ostream
+#include <iomanip>   // setfill, setw
+using std::ostream; using std::setfill; using std::setw;
+class Value {
+protected: // nicht öffentlich, nur für den eigenen und abgeleiteten Gebrauch
+    int value_;
+    const unsigned width_;
+    Value(int v, unsigned w) // Konstruktor mit zwei Argumenten
+      : value_{v}, width_{w} {}
+public:
+    ostream& print(ostream& os) const;
+};
+ostream& operator<<(ostream& os, const Value& rechts) {
+    return rechts.print(os);
+}
+ostream& Value::print(ostream& os) const {
+    return os << setfill( '0' ) << setw(width_) << value_;
+}
+
+
+class Year : public Value {               // von Klasse Value ableiten
+public:
+    explicit Year(int v) : Value{v, 4} {} // Basisklasse initialisieren
+};
+class Month : public Value {
+public:
+    explicit Month(int v) : Value{v, 2} {}
+};
+struct Day : public Value {               // class-public entspricht struct
+    explicit Day(int v) : Value{v, 2} {}
+};
+
+
+class Date {
+    Year year_;
+    Month month_ {1};
+    Day day_ {1};
+public:
+    explicit Date(int y) : year_{y} {} // year-01-01
+    Date(Year y, Month m, Day d) : year_{y}, month_{m}, day_{d} {}
+    ostream& print(ostream& os) const;
+};
+
+ostream& Date::print(ostream& os) const {
+    return os << year_ << "-" << month_ << "-"  << day_;
+}
+ostream& operator<<(ostream& os, const Date& rechts) {
+    return rechts.print(os);
+}
+int main() {
+    using std::cout;
+    Date d1 { Year{2013}, Month{15}, Day{19} };
+    cout << d1 << "\n"; // Ausgabe: 2013-15-19
+}
+```
+
+### Abgeleitete Typen erweitern
+
+Erweitern von Year, dass Ostern dabei ist. 
+
+```cpp
+class Date;  // Vorwärtsdeklaration
+class Year : public Value {
+public:
+    explicit Year(int v) : Value{v, 4} {}
+    Date ostern() const;            // neue Methode deklarieren
+};
+// Hier Month, Day und Date deklarieren. Dann:
+Date Year::ostern() const {         // neue Methode definieren
+    const int y = value_;
+    int a = value_/100*1483 - value_/400*2225 + 2613;
+    int b = (value_%19*3510 + a/25*319)/330%29;
+    b = 148 - b - (value_*5/4 + a - b)%7;
+    return Date{Year{value_}, Month{b/31}, Day{b%31 + 1}};
+}
+int main() {
+    using std::cout;
+    Year year{2014};
+    cout << year.ostern() << "\n";  // Ausgabe: 2014-04-20
+}
+```
+### Methoden überschreiben
+
+Methode so nennen, wie in der Basisklasse und sie somit überschreiben.
+
+### Methoden
+
+* `Basis ba{}; ba.print(cout);` – Basisaufruf
+In Basis sind die beiden Methoden print und wert direkt definiert. Hier ist noch keine
+andere Klasse beteiligt. wert liefert also acht_ zurück, und 8 wird ausgegeben.
+* `Print pr{}; pr.print(cout);` – print überschrieben
+In Print ist die Methode print überschrieben. Für pr wird Print::print aufgerufen. Dort
+wird wert benötigt. Diese Methode wurde von Basis geerbt. Und Basis::wert liefert
+acht_ zurück – also wird 8 ausgegeben.
+* `Wert we{}; we.print(cout)` – print aus Basis
+we.print muss auf die ererbte Methode Basis::print zurückgreifen. Dort wird nun
+die Methode wert() benötigt. Obwohl es die Methode Wert::wert gibt, ist sie in Basis::print aber noch nicht bekannt! **In einer Methode der Basisklasse werden auch
+nur Methoden der Basisklasse verwendet**, hier also Basis::wert, was acht_ zurückgibt
+und zur Ausgabe von 8 führt.
+* `Beides be{}; be.print(cout);` – alles überschrieben
+Hier ist es wieder einfach: Es gibt ein Beides::print, das aufgerufen wird. Der Aufruf
+von wert greift in der eigenen Methode Beides::wert auf elf_ zurück. Es wird 11 ausgegeben.
+
+```cpp
+#include <iostream>
+struct Basis {
+    int acht_ = 8;
+    int wert() const { return acht_; }
+    void print(std::ostream& os) const { os << wert() << "\n"; }
+};
+struct Print : public Basis {
+    int neun_ = 9;
+    void print(std::ostream& os) const { os << wert() << "\n"; }
+};
+struct Wert : public Basis {
+    int zehn_ = 10;
+    int wert() const { return zehn_; }
+};
+struct Beides : public Basis {
+    int elf_ = 11;
+    int wert() const { return elf_; }
+    void print(std::ostream& os) const { os << wert() << "\n"; }
+};
+
+int main() {
+    Basis ba{}; ba.print(std::cout);   // Basisaufruf
+    Print pr{}; pr.print(std::cout);   // print überschrieben
+    Wert we{}; we.print(std::cout);    // print aus Basis
+    Beides be{}; be.print(std::cout);  // alles überschrieben
+}
+```
+
+#### Virtuelle Methoden
+
+Compiler entscheidet zur Laufzeit welche Verion einer Methode gültig ist. 
+
+```cpp
+#include <iostream>
+
+using std::ostream; using std::cout;
+struct Basis2 {
+    int acht_ = 8;
+    virtual int wert() const          // virtuelle Methode
+        { return acht_; }
+    void print(ostream& os) const
+        { os << wert() << "\n"; }
+};
+
+struct Wert2 : public Basis2 {
+    int zehn_ = 10;
+    virtual int wert() const override // überschreiben
+        { return zehn_; }
+};
+
+int main() {
+    Wert2 we2{}; we2.print(cout);     // verwenden
+}
+```
+Aufruf von Wert ist nun ein virtueller Methodenaufruf.
+-> Override nicht vergessen!
+
+## Konstruktoren in Klassenheirarchien
+
+Vererbung ist nicht wie bei Methoden!
+
+
+
+```cpp
+class Base {
+public:
+    Base() {}                 // null-Argument-Konstruktor
+    explicit Base(int i) {}   // ein Argument
+    Base(int i, int j) {}     // zwei Argumente
+    void func() {};           // Methode
+};
+
+class Derived : public Base { // kein eigener Konstruktor
+};
+int main() {
+    Base b0{};                // okay, null-Argument-Konstruktor
+    Base b1{12};              // okay, ein Argument
+    Base b2{6,18};            // okay, zwei Argumente
+    Derived d0{};             // okay, Compiler generiert Defaultkonstruktor
+    d0.func();                // okay, Methode wird geerbt
+    Derived d1{7};            // Fehler: kein Konstruktor für ein Argument definiert
+    Derived d2{3,13};         // Fehler: kein Konstruktor für zwei Argumente definiert
+}
+```
+
+Will man die Konstruktoren der Superklasse explizit vererben nützt man using.
+
+```cpp
+class Base {
+public:
+    Base() {}
+    explicit Base(int i) {}
+    Base(int i, int j) {}
+    void func() {};           // Methode
+};
+class Derived : public Base {
+public:
+    using Base::Base;         // Importieren aller Konstruktoren der Elternklasse
+};
+int main() {
+    Derived d0{};             // okay, importiert, nicht mehr generiert
+    Derived d1{7};            // okay, wurde importiert
+    Derived d2{3,13};         // okay, wurde importiert
+}
+```
+Damit werden alle Kosntruktoren vererbt.
+
+
+# Kapitel 16 - Der Lebenszyklus von Klassen
+
+## Erzeugung und Zerstörung
+
+Eine Klasseninstand beginnt die Lebenszeit mit der definition und verliert ihre Gültigkeit, wenn ihr Scope verlassen wird. 
+
+Welche Variabeln können eingesetzt werden?
+```cpp
+struct MeinWert { /* irgendwas */ };
+MeinWert globalWert{};                    // globale Klasseninstanz
+
+void funktion(const MeinWert &paramRef) {
+    if( /*...*/ ) funktion( /*x1?*/ );    // irgendeine Funktion aufrufen
+    MeinWert lokalWert{};                 // lokale Klasseninstanz
+}                                         // Ende der Funktion
+
+int main() {
+    MeinWert mwert1{};
+    funktion( /*x2?*/ );
+    funktion( MeinWert{} );               // temporärer Wert
+    {
+        MeinWert mwert2{};
+        funktion( /*x3?*/ );
+        MeinWert mwert3{};
+    }                                     // Ende des inneren Blocks
+    funktion( /*x4?*/ );
+    MeinWert mwert4{};
+    funktion( /*x5?*/ );
+} 
+```
+* Variable `globalWert` wird beim Verlassen von `main` zerstört
+* Variable `paramRef` wird beim Verlassen von `funktion` zerstört
+* Variable `lokalWert` wird beim Verlassen von `funktion` zerstört
+* Variable `mwert1` wird beim Verlassen von `main` zerstört
+* Variable `mwert2` wird beim Verlassen vom `inneren Block` zerstört
+* Variable `mwert3` wird beim Verlassen vom `inneren Block` zerstört
+* Variable `mwert4` wird beim Verlassen von `main` zerstört
+* Variable `MeinWert{}` wird beim `;` am Ende der Zeile zerstört
+
+Wann können welche Variablen in function() verwendet werden?
+
+Variable | x1 | x2 | x3 | x4 | x5
+---|---|---|---|---|---
+globalWer | ja | ja | ja | ja | ja
+paramRef | ja |  |  |  | 
+lokalWert |  |  |  |  | 
+mwert1 |  | ja | ja | ja | ja
+mwert2 |  |  | ja |  | 
+mwert3 |  |  |  |  | 
+mwert4 |  |  |  |  | ja
+
+### Rvalue und Lvalue
+“l-value” refers to a memory location that identifies an object. “r-value” refers to the data value that is stored at some address in memory. References in C++ are nothing but the alternative to the already existing variable. They are declared using the ‘&’ before the name of the variable.
+
+#### lvalue
+lvalue simply means an object that has an identifiable location in memory (i.e. having an address).
+
+* In any assignment statement “lvalue” must have the capability to store the data.
+* lvalue cannot be a function, expression (like a+b) or a constant (like 3 , 4 , etc.).
+ 
+L-value: “l-value” refers to memory location which identifies an object. l-value may appear as either left hand or right hand side of an assignment operator(=). l-value often represents as identifier. Expressions referring to modifiable locations are called “modifiable l-values“. A modifiable l-value cannot have an array type, an incomplete type, or a type with the const attribute. For structures and unions to be modifiable lvalues, they must not have any members with the const attribute. The name of the identifier denotes a storage location, while the value of the variable is the value stored at that location. An identifier is a modifiable lvalue if it refers to a memory location and if its type is arithmetic, structure, union or pointer. For example, if ptr is a pointer to a storage region, then *ptr is a modifiable l-value that designates the storage region to which ptr points. In C, the concept was renamed as “locator value”, and referred to expressions that locate (designate) objects. The l-value is one of the following:
+
+1. The name of the variable of any type i.e. , an identifier of integral, floating, pointer, structure, or union type.
+2. A subscript (\[ ]) expression that does not evaluate to an array.
+3. A unary-indirection (*) expression that does not refer to an array
+4. An l-value expression in parentheses.
+5. A const object (a nonmodifiable l-value).
+6. The result of indirection through a pointer, provided that it isn’t a function pointer.
+7. The result of member access through pointer(-> or .)
+
+#### r-value
+r-value simply means, an object that has no identifiable location in memory (i.e. having an address).
+
+* Anything that is capable of returning a constant expression or value.
+* Expression like a+b will return some constant.
+R-value: r-value” refers to data value that is stored at some address in memory. A r-value is an expression, that can’t have a value assigned to it, which means r-value can appear on right but not on left hand side of an assignment operator(=). 
+
+#### Verschiebesemantik
+Rvalue-Verweise unterstützen die Implementierung der Bewegungssemantik, die die Leistung Ihrer Anwendungen erheblich erhöhen kann. Mithilfe der Verschiebesemantik können Sie Code schreiben, der Ressourcen (wie dynamisch zugeordneten Speicher) von einem Objekt zu einem anderen überträgt. Verschieben der Semantik funktioniert, da die Übertragung von Ressourcen aus temporären Objekten ermöglicht wird: Auf diese, auf die nicht an anderer Stelle im Programm verwiesen werden kann.
+
+Zum Implementieren der Verschiebungssemantik stellen Sie in der Regel einen Konstruktor für Verschiebungen und optional einen Zuweisungsoperator (operator=) für Ihre Klasse bereit. Kopier- und Zuordnungsvorgänge, deren Quellen rvalues sind, nutzen dann automatisch die Verschiebesemantik. Im Gegensatz zum Standardkopiekonstruktor stellt der Compiler keinen Standardverschiebungskonstruktor bereit. Weitere Informationen zum Schreiben und Verwenden eines Konstruktors finden Sie unter Move-Konstruktoren und Verschieben von Zuordnungsoperatoren.
+
+
+
+
+## Destruktor
+
+Destructor is an instance member function which is invoked automatically whenever an object is going to be destroyed. Meaning, a destructor is the last function that is going to be called before an object is destroyed.
+
+* Destructor is also a special member function like constructor. Destructor destroys the class objects created by constructor. 
+* Destructor has the same name as their class name preceded by a tiled (~) symbol.
+* It is not possible to define more than one destructor. 
+* The destructor is only one way to destroy the object create by constructor. Hence destructor can-not be overloaded.
+* Destructor neither requires any argument nor returns any value.
+* It is automatically called when object goes out of scope. 
+* Destructor release memory space occupied by the objects created by constructor.
+* In destructor, objects are destroyed in the reverse of an object creation.
+
+```cpp
+//Syntax for defining the destructor within the class
+~ <class-name>(){}
+
+//Syntax for defining the destructor outside the class
+<class-name>:: ~ <class-name>(){}
+```
+
+```cpp
+#include <string>
+#include <iostream>
+#include <iomanip>   // setw
+using std::cout; using std::setw; using std::string;
+struct MeinWert {
+    static int zaehler;              // static: existiert nur einmal für alle Instanzen
+    int nummer_;                     // Einrücktiefe dieser Instanz für die Ausgabe
+    string name_;                    // Name dieser Instanz für die Ausgabe
+    explicit MeinWert(string name)
+        : nummer_{++zaehler}         // Zähler für Einrücktiefe pro Instanz hochzählen
+        , name_{name}                // Name des Objekts für Ausgabe merken
+    {
+        cout << setw(nummer_) << " " // nummer_ verwenden für Einrücktiefe
+             << "Konstruktor " << name_ << "\n"; // Instanzname ausgeben        }
+    ~MeinWert() {                    // Destruktor
+        cout << setw(nummer_) << " " << "Destruktor " << name_ << "\n";
+    }
+};
+int MeinWert::zaehler = 0;           // Initialisierung der statischen Klassenvariablen
+
+
+
+void funktion(const MeinWert &paramRef) {
+    MeinWert lokalWert{"lokal"};
+}
+
+int main() {
+    MeinWert mwert1{"mwert1"};
+    funktion( MeinWert{"temp"} );
+    funktion( mwert1 );
+    {
+        MeinWert mwert2{"mwert2"};
+    }
+}
+
+Ausgabe:
+Konstruktor mwert1
+    Konstruktor temp
+        Konstruktor lokal
+        Destruktor lokal
+    Destruktor temp
+        Konstruktor lokal
+        Destruktor lokal
+            Konstruktor mwert2
+            Destruktor mwert2
+Destruktor mwert1
+```
+Normalerweise ist kein Destruktor nötig. Einige Ressourcen müssen aber weggeräumt werden, wie Rohe Zeiger und C-Datentypen.
+
+Beispiel DB-Zugriff
+
+```cpp
+#include <iostream>                // cout
+#include "database.hpp"            // Einbinden der fremden Programmierschnittstelle
+class Database {
+    db_handle_t db_;               // eingepackte Ressource
+public:
+    Database(const char* filename);
+    ~Database();
+    int execute(const char* query);
+};
+Database::Database(const char* filename)
+    : db_{db_open(filename)}       // Anfordern der Ressource
+    { }
+Database::~Database() {
+    db_close(db_);                 // Freigeben der Ressource
+}
+int Database::execute(const char* query) {
+    return db_execute(db_, query); // Nutzen der Ressource
+}
+int main() {
+    Database db{ "kunden.dat" };   // Erzeugen des Wrappers
+    std::cout << "Anzahl: "<< db.execute("select * from kunden") << "\n";
+}  
+```
+Wird während des Konstruktors eine Exception geworfen, wird der Destruktor nicht aufgerufen!!
+
+When do we need to write a user-defined destructor? 
+If we do not write our own destructor in class, compiler creates a default destructor for us. The default destructor works fine unless we have dynamically allocated memory or pointer in class. When a class contains a pointer to memory allocated in class, we should write a destructor to release memory before the class instance is destroyed. This must be done to avoid memory leak.
+
+Can a destructor be virtual? 
+Yes, In fact, it is always a good idea to make destructors virtual in base class when we have a virtual function. See virtual destructor for more details. 
+
+## CopyConstructor
+
+A copy constructor is a member function that initializes an object using another object of the same class. A copy constructor has the following general function prototype: 
+
+`ClassName (const ClassName &old_obj);` 
+
+* Copy constructor is used to initialize the members of a newly created object by copying the members of an already existing object.
+* Copy constructor takes a reference to an object of the same class as an argument.
+
+          Sample(Sample &t) {id=t.id;}
+* The process of initializing members of an object through a copy constructor is known as copy initialization.
+* It is also called member-wise initialization because the copy constructor initializes one object with the existing object, both belonging to the same class on a member by member copy basis.
+* The copy constructor can be defined explicitly by the programmer. If the programmer does not define the copy constructor, the compiler does it for us.
+
+
+```cpp
+struct MeinWert {
+   static int zaehler;
+   int nummer_;
+   string name_;
+   explicit MeinWert(string name) // wie zuvor
+      : nummer_{++zaehler} , name_{name}
+      { cout << setw(nummer_) << '_'  << "Konstruktor " << name_ << "\n"; }
+   MeinWert(const MeinWert &orig) // neuer Kopierkonstruktor
+      : nummer_{++zaehler} , name_{orig.name_ + "-Kopie"}
+      { cout << setw(nummer_)<<" " << "Kopierkonstruktor " << name_ << "\n"; }
+   ~MeinWert() { // wie zuvor
+      cout << setw(nummer_)<<" " << "Destruktor " << name_ << "\n";
+   }
+};
+int MeinWert::zaehler = 0;
+```
+
+
+
+```cpp
+// C++ program to demonstrate the working
+// of a COPY CONSTRUCTOR
+#include <iostream>
+using namespace std;
+ 
+class Point {
+private:
+    int x, y;
+ 
+public:
+    Point(int x1, int y1)
+    {
+        x = x1;
+        y = y1;
+    }
+ 
+    // Copy constructor
+    Point(const Point& p1)
+    {
+        x = p1.x;
+        y = p1.y;
+    }
+ 
+    int getX() { return x; }
+    int getY() { return y; }
+};
+ 
+int main()
+{
+    Point p1(10, 15); // Normal constructor is called here
+    Point p2 = p1; // Copy constructor is called here
+ 
+    // Let us access values assigned by constructors
+    cout << "p1.x = " << p1.getX()
+         << ", p1.y = " << p1.getY();
+    cout << "\np2.x = " << p2.getX()
+         << ", p2.y = " << p2.getY();
+ 
+    return 0;
+}
+//Output
+//p1.x = 10, p1.y = 15
+//p2.x = 10, p2.y = 15
+```
+
+
+
+```cpp
+// Example: Implicit copy constructor
+ 
+#include<iostream>
+using namespace std;
+ 
+class Sample
+{         
+      int id;
+    public:
+    void init(int x)
+    {
+        id=x;   
+    }   
+    void display()
+    {
+        cout<<endl<<"ID="<<id;
+    }
+};
+ 
+int main()
+{
+    Sample obj1;
+    obj1.init(10);
+    obj1.display();
+     
+    Sample obj2(obj1); //or obj2=obj1;
+    obj2.display();
+    return 0;
+}
+//Output
+//ID=10
+//ID=10
+```
+
+
+```cpp
+// Example: Explicit copy constructor
+ 
+#include<iostream>
+using namespace std;
+ 
+class Sample
+{
+    int id;
+    public:
+    void init(int x)
+    {
+        id=x;   
+    }   
+    Sample(){}  //default constructor with empty body
+     
+    Sample(Sample &t)   //copy constructor
+    {
+        id=t.id;
+    }
+    void display()
+    {
+        cout<<endl<<"ID="<<id;
+    }
+};
+int main()
+{
+    Sample obj1;
+    obj1.init(10);
+    obj1.display();
+     
+    Sample obj2(obj1); //or obj2=obj1;    copy constructor called
+    obj2.display();
+    return 0;
+}
+//Output
+//ID=10
+//ID=10
+```
+When is a user-defined copy constructor needed? 
+
+If we don’t define our own copy constructor, the C++ compiler creates a default copy constructor for each class which does a member-wise copy between objects. The compiler-created copy constructor works fine in general. We need to define our own copy constructor only if an object has pointers or any runtime allocation of the resource like file handle, a network connection, etc.
+
+The default constructor does only shallow copy
+![](https://media.geeksforgeeks.org/wp-content/uploads/copy-constructor.png)
+
+Deep copy is possible only with a user-defined copy constructor. In a user-defined copy constructor, we make sure that pointers (or references) of copied objects point to new memory locations.  
+
+![](https://media.geeksforgeeks.org/wp-content/uploads/copy-constructor1.png)
+
+## Zuweisungsoperator
+Copy constructor and Assignment operator are similar as they are both used to initialize one object using another object. But, there are some basic differences between them:
+
+Copy constructor |	Assignment operator
+---|---
+It is called when a new object is created from an existing object, as a copy of the existing object	| This operator is called when an already initialized object is assigned a new value from another existing object. 
+It creates a separate memory block for the new object.	|It does not create a separate memory block or new memory space.
+It is an overloaded constructor.	|It is a bitwise operator. 
+C++ compiler implicitly provides a copy constructor, if no copy constructor is defined in the class.	| A bitwise copy gets created, if the Assignment operator is not overloaded. 
+Syntax: className(const className &obj) {// body } | Syntax: className obj1, obj2; obj2 = obj1;
+
+```cpp
+
+// CPP Program to demonstrate the use of copy constructor
+// and assignment operator
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+ 
+class Test {
+public:
+    Test() {}
+    Test(const Test& t)
+    {
+        cout << "Copy constructor called " << endl;
+    }
+ 
+    Test& operator=(const Test& t)
+    {
+        cout << "Assignment operator called " << endl;
+        return *this;
+    }
+};
+ 
+// Driver code
+int main()
+{
+    Test t1, t2;
+    t2 = t1;
+    Test t3 = t1;
+    getchar();
+    return 0;
+}
+//Output
+//Assignment operator called 
+//Copy constructor called 
+```
+
+## Bewegungskonstruktoren und Bewegungszuweisungsoperatoren
+
+In diesem Thema wird beschrieben, wie Sie einen Konstruktor und einen Verschiebungszuweisungsoperator für eine C++-Klasse schreiben. Ein Konstruktor zum Verschieben ermöglicht es den Ressourcen, die einem rvalue-Objekt gehören, in einen lvalue zu verschieben, ohne zu kopieren. Weitere Informationen zur Verschiebungssemantik finden Sie unter Rvalue Reference Declarator: &&.
+
+Die Kopiersteuerung der Klasse definiert die Kernfunktionen, die erforderlich sind, um festzulegen, was passiert, wenn das Klassenobjekt kopiert, verschoben, zugewiesen oder zerstört wird. Diese Funktionen haben eine spezielle C++-Nomenklatur, wie die Kopierkonstruktor- und Bewegungskonstruktor-Funktionen definieren, wie ein Objekt mit einem anderen Objekt desselben Typs initialisiert wird. Kopierzuweisungs- und Verschiebezuweisungsfunktionen definieren, wie das Objekt demselben Objekttyp zugewiesen wird. Destructor behandelt die Routine, die ausgeführt wird, wenn das Objekt den Gültigkeitsbereich verlässt. Einige dieser Funktionen werden höchstwahrscheinlich vom Benutzer definiert, aber wenn nicht, erstellt der Compiler selbst die Standardprototypen.
+
+Wenn das Klassenobjekt den dynamischen Speicher verwaltet und die Daten ziemlich groß sind, können die Kopiervorgänge ziemlich rechenintensiv sein. Sie können erhebliche Ressourcen verbrauchen, die die Leistung beeinträchtigen. Daher verwenden sie häufig einen Bewegungskonstruktor, um dynamische Daten neu zuzuweisen, ohne sie an die neue Speicherstelle zu kopieren. Dies wird erreicht, indem die Zeiger des alten Objekts den entsprechenden Mitgliedern des neu initialisierten oder zugewiesenen Objekts zugewiesen werden. Beachten Sie, dass das folgende Beispiel den move-Konstruktor nicht enthält und mehrere Aufrufe des Kopierkonstruktors verursacht, der an den Standardkonstruktor delegiert.
+```cpp
+#include <iostream>
+#include <vector>
+
+using std::cout; using std::endl;
+using std::vector; using std::cin;
+
+class MyClass {
+private:
+    int* data;
+
+public:
+    explicit MyClass(int d) {
+        data = new int;
+        *data = d;
+        cout << "Constructor 1 is called" << endl;
+    };
+
+    MyClass(const MyClass& source): MyClass(*source.data) {
+        cout << "Copy Constructor is called " << endl;
+    }
+
+    int getData() const {
+        return *data;
+    }
+
+    ~MyClass() {
+        delete data;
+        cout << "Destructor is called" << endl;
+    }
+
+};
+
+void printVec(const vector<MyClass> &vec) {
+
+    for (const auto & i : vec) {
+        cout << i.getData() << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    vector<MyClass> vec;
+
+    vec.push_back(MyClass(10));
+    vec.push_back(MyClass(11));
+    printVec(vec);
+    cout << "------------------" << endl;
+
+    return EXIT_SUCCESS;
+}
+//Ausgabe:
+//
+//Constructor 1 is called
+//Constructor 1 is called
+//Copy Constructor is called
+//Destructor is called
+//Constructor 1 is called
+//Constructor 1 is called
+//Copy Constructor is called
+//Constructor 1 is called
+//Copy Constructor is called
+//Destructor is called
+//Destructor is called
+//10 11
+//------------------
+//Destructor is called
+//Destructor is called
+```
+Sobald wir einen Bewegungskonstruktor definieren, der im Allgemeinen eine r-Wert-Referenz als erstes Argument annehmen sollte (mit &&-Notation gekennzeichnet), wird die Vektorinitialisierung effizienter, wenn die neuen Elemente vom Typ MyClass hinzugefügt werden. Da der Move-Konstruktor keinen neuen Speicher zuweist und die Position des übergebenen Objekts übernimmt, muss man den Membern des vorherigen Objekts nullptr zuweisen. Andernfalls versucht der Destruktor, denselben Speicherort zweimal freizugeben, und löst den Laufzeitfehler aus.
+
+
+```cpp
+#include <iostream>
+#include <vector>
+
+using std::cout; using std::endl;
+using std::vector; using std::cin;
+
+class MyClass {
+private:
+    int* data;
+
+public:
+    explicit MyClass(int d) {
+        data = new int;
+        *data = d;
+        cout << "Constructor 1 is called" << endl;
+    };
+
+    MyClass(const MyClass& source): MyClass(*source.data) {
+        cout << "Copy Constructor is called " << endl;
+    }
+
+    MyClass(MyClass&& source) noexcept : data(source.data) {
+        source.data = nullptr;
+        cout << "Move Constructor is called" << endl;
+    }
+
+    int getData() const {
+        return *data;
+    }
+
+    ~MyClass() {
+        delete data;
+        cout << "Destructor is called" << endl;
+    }
+
+};
+
+void printVec(const vector<MyClass> &vec) {
+
+    for (const auto & i : vec) {
+        cout << i.getData() << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    vector<MyClass> vec;
+
+    vec.push_back(MyClass(10));
+    vec.push_back(MyClass(11));
+    printVec(vec);
+    cout << "------------------" << endl;
+
+    return EXIT_SUCCESS;
+}
+//Ausgabe:
+//
+//Constructor 1 is called
+//Move Constructor is called
+//Destructor is called
+//Constructor 1 is called
+//Move Constructor is called
+//Move Constructor is called
+//Destructor is called
+//Destructor is called
+//10 11
+//------------------
+//Destructor is called
+//Destructor is called
+```
+## Was der Compiler generiert
+
+* **Strandardkontruktor:** `C()` wird generiert, wenn kein Konstruktor deklariert ist
+* **Der Destruktor:** `~C()` wird generiert, wenn kein Destruktor deklariert ist
+* **Der Kopierkonstruktor** `C(const C&)` wird generiert, wenn keine Verschiebeoperation deklariert ist
+* **Die Kopierzuweisung** `C& operator=(const c&)` wird generiert, wenn keine Verschiebeoperation deklariert ist
+* **Der Verschiebekonstruktor** `C(C&&)` wird generiert, wenn keine Kopieroperation deklariert ist und alle Elemente verschoben werden können
+* **Der Verschiebeoperator** `C& operator=(C&&)` wird generiert, wenn keine Kopieroperation deklariert ist und alle Elemente verschoben werden können
+
+## Überladen von Operatoren
+
+In C++, we can make operators work for user-defined classes. This means C++ has the ability to provide the operators with a special meaning for a data type, this ability is known as operator overloading. For example, we can overload an operator ‘+’ in a class like String so that we can concatenate two strings by just using +. Other example classes where arithmetic operators may be overloaded are Complex Numbers, Fractional Numbers, Big Integer, etc.
+
+Operator overloading is a compile time polymorphism. It is an idea of giving special meaning to an existing operator in C++ without changing their original meaning.
+
+
+
+```cpp
+class A{
+};
+
+int main(){
+      A   a1,a2,a3;
+      a3= a1 + a2;
+      return 0;
+}
+```
+In this example, we have 3 variables “a1”, “a2” and “a3” of type “class A”. Here we are trying to add two objects “a1” and “a2”, which are of user defined type i.e. of type “class A” using “+” operator. This is not allowed, because addition operator “+” is predefined to operate only on built-in data types. But here, “class A” is a user defined type, so compiler generate an error. This is where, the concept of “Operator overloading” comes in. 
+Now, if the user wants to make the operator “+” to add two class objects, the user has to redefine the meaning of “+” operator such that it adds two class objects. This is done by using the concept “Operator overloading”. So the main idea behind “Operator overloading” is to use c++ operators with class variables or class objects. Redefining the meaning of operators really does not change their original meaning; instead they have been given additional meaning along with their existing ones.
+
+
+```cpp
+#include<iostream>
+using namespace std;
+ 
+class Complex {
+private:
+    int real, imag;
+public:
+    Complex(int r = 0, int i = 0) {real = r;   imag = i;}
+     
+    // This is automatically called when '+' is used with
+    // between two Complex objects
+    Complex operator + (Complex const &obj) {
+         Complex res;
+         res.real = real + obj.real;
+         res.imag = imag + obj.imag;
+         return res;
+    }
+    void print() { cout << real << " + i" << imag << '\n'; }
+};
+ 
+int main()
+{
+    Complex c1(10, 5), c2(2, 4);
+    Complex c3 = c1 + c2;
+    c3.print();
+}
+```
+What is the difference between operator functions and normal functions? 
+Operator functions are the same as normal functions. The only differences are, the name of an operator function is always the operator keyword followed by the symbol of the operator and operator functions are called when the corresponding operator is used. 
+
+### Operator s that can be overloaded
+We can overload
+
+* Uniary operators
+* Binary operators
+* Special operators ( [ ], () etc)
+ 
+### Operators that cannot be overloaded 
+
+They are
+
+* Scope resolution operator ::
+* Member selection operator                               
+* Member selection through *                               
+ 
+Pointer to member variable
+
+* Conditional operator ? :
+* Sizeof operator sizeof()
+ 
+**Operator that can be overloaded**
+
+1. Binary Arithmetic     ->     +, -, *, /, %
+2. Unary Arithmetic     ->     +, -, ++, —
+3. Assignment     ->     =, +=,*=, /=,-=, %=
+4. Bit- wise      ->     & , | , << , >> , ~ , ^
+5. De-referencing     ->     (->)
+6. Dynamic memory allocation and De-allocation     ->     New, delete 
+7. Subscript     ->     \[ ]
+8. Function call     ->     ()
+9. Logical      ->     &,  | |, !
+10. Relational     ->     >, < , = =, <=, >=
+
+Why can’t the above-stated operators be overloaded?
+
+1. sizeof – This returns the size of the object or datatype entered as the operand. This is evaluated by the compiler and cannot be evaluated during runtime. The proper incrementing of a pointer in an array of objects relies on the sieof operator implicitly. Altering its meaning using overloading would cause a fundamental part of the language to collapse.
+
+2. typeid: This provides a CPP program with the ability to recover the actual derived type of the object referred to by a pointer or reference. For this operator, the whole point is to uniquely identify a type. If we want to make a user-defined type to ‘look’ like another type, polymorphism can be used but the meaning of the typeid operator must remain unaltered, or else serious issues could arise.
+
+3. Scope resolution (::): This helps identify and specify the context to which an identifier refers by specifying a namespace. It is completely evaluated at runtime and works on names rather than values. The operands of scope resolution are note expressions with data types and CPP has no syntax for capturing them if it were overloaded. So it is syntactically impossible to overload this operator.
+
+4. Class member access operators (.(dot), .* (pointer to member operator)): The importance and implicit use of class member access operators can be understood through the following example:
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class ComplexNumber{
+private:
+int real;
+int imaginary;
+public:
+ComplexNumber(int real, int imaginary){
+	this->real = real;
+	this->imaginary = imaginary;
+}
+void print(){
+	cout<<real<<" + i"<<imaginary;
+}
+ComplexNumber operator+ (ComplexNumber c2){
+	ComplexNumber c3(0,0);
+	c3.real = this->real+c2.real;
+	c3.imaginary = this->imaginary + c2.imaginary;
+	return c3;
+}
+};
+int main() {
+	ComplexNumber c1(3,5);
+	ComplexNumber c2(2,4);
+	ComplexNumber c3 = c1 + c2;
+	c3.print();
+	return 0;
+}
+```
+The statement ComplexNumber c3 = c1 + c2; is internally translated as ComplexNumber c3 = c1.operator+ (c2); in order to invoke the operator function. The argument c1 is implicitly passed using the ‘.’ operator. The next statement also makes use of the dot operator to access the member function print and pass c3 as an argument. Thus, in order to ensure a reliable and non-ambiguous system of accessing class members, the predefined mechanism using class member access operators is absolutely essential. Besides, these operators also work on names and not values and there is no provision (syntactically) to overload them.
+
+5. Ternary or conditional (?:): The ternary or conditional operator is a shorthand representation of an if-else statement. In the operator, the true/false expressions are only evaluated on the basis of the truth value of the conditional expression. 
+
+conditional statement ? expression1 (if statement is TRUE) : expression2 (else)
+
+A function overloading the ternary operator for a class say ABC using the definition
+
+ABC operator ?: (bool condition, ABC trueExpr, ABC falseExpr);
+
+would not be able to guarantee that only one of the expressions was evaluated. Thus, ternary operator cannot be overloaded.
+
+#### Important points about operator overloading 
+1) For operator overloading to work, at least one of the operands must be a user-defined class object.
+2) Assignment Operator: Compiler automatically creates a default assignment operator with every class. The default assignment operator does assign all members of the right side to the left side and works fine in most cases (this behaviour is the same as the copy constructor). See this for more details. 
+3) Conversion Operator: We can also write conversion operators that can be used to convert one type to another type. 
+
+## Besondere Klassenformen
+
+### Abstrakte Klassen und Methoden
+
+Methoden ohne Implementierung
+
+```cpp
+#include <string>
+#include <iostream>
+using std::string; using std::ostream;
+
+class Shape {
+    string color_;
+public:
+    virtual double calcArea() const = 0; // pur virtuelle Methode
+    string getColor() const { return color_; }
+    void setColor(const string& color) { color_ = color; }
+    virtual ~Shape() {}
+};
+
+class Square : public Shape {
+    double len_;
+public:
+    explicit Square(double len) : len_{len} {}
+    double calcArea() const override { return len_*len_; }
+};
+
+class Circle : public Shape {
+    double rad_;
+public:
+    explicit Circle(double rad) : rad_{rad} {}
+    double calcArea() const override { return 3.1415*rad_*rad_; }
+};
+
+struct Calculator {
+    Shape& shape_;
+    Calculator(Shape& shape) : shape_{shape} { }
+    void run(ostream& os) const {
+        os << "The area of the shape is " << shape_.calcArea() << "\n";
+    }
+};
+
+int main() {
+    Square quadrat {5.0};
+    Calculator ti { quadrat };
+    ti.run(std::cout); // Ausgabe: The area of the shape is 25
+}
+```
+Basisklasse Shape weiss das mit calcArea die Flächen von Formen berechnet werden, weiss aber nicht wie. Daher ist sie pur virtuell und mit =0 markiert.
+
+Klassen mit mindestens einer pur virtuellen Methode sind abstrakte Klassen.
+Klassen die von einer abstrakten erben, können nur instanziert werden, wenn alle virtuellen Methoden überschrieben werden.
+
+## Enum
+
+```cpp
+enum class Ampelfarbe {
+    ROT, GELB, GRÜN
+};
+```
+# Kapitel 18 - Spezielles für Klassen
+
+## friend Klassen
+
+Ausnahmeregel für bestimmte Klassen
+
+
+```cpp
+#include <iostream>
+class Schrauber;
+class Ding {
+    int value_; // privat
+public:
+    explicit Ding(int value) : value_{value} {}
+    void inc() { ++value_; }
+    std::ostream& print(std::ostream& os) const { return os<<value_; }
+    friend class Schrauber;
+};
+class Schrauber {
+    const Ding &ding_;
+public:
+    explicit Schrauber(const Ding &ding) : ding_{ding} {}
+    auto dingWert() const {
+        return ding_.value_;                   // Zugriff auf Privates aus Ding
+    }
+};
+int main() {
+    Ding ding{45};
+    ding.print(std::cout) << '\n';             // Ausgabe: 45
+    Schrauber schrauber{ding};
+    ding.inc(); // internen Wert verändern
+    std::cout << schrauber.dingWert() << '\n'; // Ausgabe: 46
+}
+```
+Zu beachten:
+* Namensraum muss vorher bekannt sein
+* Freundschaft vererbt sich nicht.
+
+## Non public Vererbung
+
+
+```cpp
+class Base {
+public:
+    int xPublic = 1;
+protected:
+    int xProtected = 2;
+private:
+    int xPrivate = 3;
+};
+class DerivedPublic : public Base {
+    // xPublic wird 'public'
+    // xProtected wird 'protected'
+    // xPrivate ist hier nicht sichtbar
+};
+class DerivedProtected : protected Base {
+    // xPublic wird 'protected'
+    // xProtected wird 'protected'
+    // xPrivate ist hier nicht sichtbar
+};
+class DerivedPrivate : private Base { // oder wenn nichts angegeben
+    // xPublic wird 'private'
+    // xProtected wird 'private'
+    // xPrivate ist hier nicht sichtbar
+};
+```
+
+-> Die Sichtbarkeit kann so weiter eingeschränkt werden.
+
+## Signaturklassen
+
+Klasse mit nur virtuellen Methoden, wie Interfaces in Java. 
+
+
+```cpp
+struct Driver {
+    virtual void init() = 0;
+    virtual void done() = 0;
+    virtual bool send(const char* data, unsigned len) = 0;
+};
+
+
+#include <iostream>
+using std::cout;
+
+struct KeyboardDriver : public Driver {
+    void init() override { cout << "Init Keyboard\n"; }
+    void done() override { cout << "Done Keyboard\n"; }
+    bool send(const char* data, unsigned int len) override {
+        cout << "sending " << len << " bytes\n";
+        return true;
+    }
+};
+
+struct Computer {
+    Driver &driver_;
+    explicit Computer(Driver &driver) : driver_{driver} {
+        driver_.init();
+    }
+    void run() {
+        driver_.send("Hello", 5);
+    }
+    ~Computer() {
+        driver_.done();
+    }
+    Computer(const Computer&) = delete;
+};
+
+int main() {
+    KeyboardDriver keyboard {};
+    Computer computer(keyboard); // Ausgabe: Init Keyboard
+    computer.run();              // Ausgabe: sending 5 bytes
+}                                // Ausgabe: Done Keyboard
+```
+
+* Bei multipler Vererbung
+
+## Multiple Vererbung
+
+Mit Vorsicht nutzen!
+
+```cpp
+using std::cout;
+class Saeugetier {
+public:
+    void gebaere() { cout << "Geburt!\n"; }
+};
+class Fliegend {
+public:
+    void fliege() { cout << "Flug!\n"; }
+};
+class Fledermaus: public Saeugetier, public Fliegend {
+public:
+    void rufe() { cout << "Ultraschall!\n"; }
+};
+int main() {
+    Fledermaus bruce{};
+    bruce.gebaere();       // Ausgabe: Geburt!
+    bruce.fliege();        // Ausgabe: Flug!
+    bruce.rufe();          // Ausgabe: Ultraschall!
+}
+```
+-> Achtung bei Pointern 18.4.2
+
+
+
+# Kapitel 20 - Zeiger
+
+To access address of a variable to a pointer, we use the unary operator & (ampersand) that returns the address of that variable. For example &x gives us address of variable x. 
+
+
+```cpp
+int main(){
+    int x;
+    printf("%p", &x);       // Prints address of x
+    return 0;
+}
+```
+One more operator is unary * (Asterisk) which is used for two things : 
+
+To declare a pointer variable: When a pointer variable is declared in C/C++, there must be a * before its name. 
+```cpp
+int main() {
+    int x = 10;
+    int *ptr; 
+    // & operator before x is used to get address
+    // of x. The address of x is assigned to ptr.
+    ptr = &x;
+    return 0;
+}
+```
+To access the value stored in the address we use the unary operator (*) that returns the value of the variable located at the address specified by its operand. This is also called Dereferencing.
+```cpp
+#include <iostream>
+using namespace std;
+ 
+int main() {
+    // A normal integer variable
+    int Var = 10;
+ 
+    // A pointer variable that holds address of var.
+    int *ptr = &Var;
+ 
+    // This line prints value at address stored in ptr.
+    // Value stored is value of variable "var"
+    cout << "Value of Var = "<< *ptr << endl;
+ 
+    // The output of this line may be different in different
+    // runs even on same machine.
+    cout << "Address of Var = " <<  ptr << endl;
+ 
+    // We can also use ptr as lvalue (Left hand
+    // side of assignment)
+    *ptr = 20; // Value at address is now 20
+ 
+    // This prints 20
+    cout << "After doing *ptr = 20, *ptr is "<< *ptr << endl;
+ 
+    return 0;
+}
+ 
+//Output : 
+//Value of Var = 10
+//Address of Var = 0x7fffa057dd4
+//After doing *ptr = 20, *ptr is 20
+```
+
+![](https://media.geeksforgeeks.org/wp-content/cdn-uploads/How-Pointer-Works-In-C.png)
+
+```cpp
+#include <vector>
+#include <iostream>
+using std::vector; using std::cout; using std::ostream;
+ostream& printVector(ostream& os, const vector<int> &arg) { // Hilfsfunktion
+    for(int w : arg) os << w << " "; return os;
+}
+int main() {
+    vector<int> werte{ };
+    werte.reserve(50);                      // Platz für 50 Werte garantieren
+    int *groesstes = nullptr;               // mit besonderem Wert initialisieren
+    for(int w : { 20, 2, 30, 15, 81, 104, 70, 2, }) {
+        werte.push_back(w);
+        if(!groesstes || *groesstes < w ) { // dereferenzieren zum Wert
+            groesstes = &(werte.back());    // neue Adresse merken; deshalb nicht '*'
+        }
+    }
+    printVector(cout, werte) << "\n";       // Ausgabe: 20 2 30 15 81 104 70 2
+    // groesstes enthält nun die Adresse der 104:
+    *groesstes = -999;                      // dereferenzieren; also Wert überschreiben
+    printVector(cout, werte) << "\n";       // Ausgabe: 20 2 30 15 81 @MINUS@999 70 2
+}
+```
+## Pointer Expressions and Pointer Arithmetic 
+A limited set of arithmetic operations can be performed on pointers. A pointer may be: 
+ 
+* incremented ( ++ )
+* decremented ( —- )
+* an integer may be added to a pointer ( + or += )
+* an integer may be subtracted from a pointer ( – or -= )
+* 
+Pointer arithmetic is meaningless unless performed on an array. 
+Note : Pointers contain addresses. Adding two addresses makes no sense, because there is no idea what it would point to. Subtracting two addresses lets you compute the offset between these two addresses.
+
+
+```cpp
+// C++ program to illustrate Pointer Arithmetic
+// in C/C++
+#include <bits/stdc++.h>
+ 
+// Driver program
+int main() {
+    // Declare an array
+    int v[3] = {10, 100, 200};
+ 
+    // Declare pointer variable
+    int *ptr;
+ 
+    // Assign the address of v[0] to ptr
+    ptr = v;
+ 
+    for (int i = 0; i < 3; i++) {
+        printf("Value of *ptr = %d\n", *ptr);
+        printf("Value of ptr = %p\n\n", ptr);
+ 
+        // Increment pointer ptr by 1
+        ptr++;
+    }
+}
+
+//Output:
+//Value of *ptr = 10
+//Value of ptr = 0x7ffcae30c710
+//Value of *ptr = 100
+//Value of ptr = 0x7ffcae30c714
+//Value of *ptr = 200
+//Value of ptr = 0x7ffcae30c718
+```
+### Array Name as Pointers 
+An array name acts like a pointer constant. The value of this pointer constant is the address of the first element. 
+For example, if we have an array named val then val and &val[0] can be used interchangeably. 
+
+### Pointers and Multidimensional Arrays 
+Consider pointer notation for the two-dimensional numeric arrays. consider the following declaration 
+ 
+
+`int nums[2][3]  =  { {16, 18, 20}, {25, 26, 27} };`
+
+In general, `nums[i][j]` is equivalent to `*(*(nums+i)+j)`
+
+ 
+
+Pointer Notation	|Array Notation	|Value
+---|---|---
+*(*nums)	|nums[0][0]|16
+*(*nums + 1)	|nums[0][1]|	18
+*(*nums + 2)	|nums[0][2]	|20
+*(*(nums + 1))|	nums[1][0]|	25
+*(*(nums + 1) + 1)	|nums[1][1]|	26
+*(*(nums + 1) + 2)|	nums[1][2]|	27
+
+## Nullpointer
+Initialisieren mit "Zeigt nirgendwo hin"
+
+`int* grössterWert = nullprt;`
+
+## Heap
+
+Dynamische Erzeugung eines Objekts. 
+
+Schlüsselwort *new* liefert einen rohen Zeiger. -> In smarten Pointer packen!
+Muss explizit mit *delete* gelöscht werden.
+
+### Geeks for Geeks
+Heap data structure can be implemented in a range using STL which allows faster input into heap and retrieval of a number always results in the largest number i.e. largest number of the remaining numbers is popped out each time. Other numbers of the heap are arranged depending upon the implementation.
+
+Operations on heap :
+
+1. make_heap() :- This function is used to convert a range in a container to a heap.
+
+2. front() :- This function displays the first element of heap which is the maximum number.
+
+```cpp
+// C++ code to demonstrate the working of
+// make_heap(), front()
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+	
+	// Initializing a vector
+	vector<int> v1 = {20, 30, 40, 25, 15};
+	
+	// Converting vector into a heap
+	// using make_heap()
+	make_heap(v1.begin(), v1.end());
+	
+	// Displaying the maximum element of heap
+	// using front()
+	cout << "The maximum element of heap is : ";
+	cout << v1.front() << endl;
+	
+	return 0;
+}
+```
+3. push_heap() :- This function is used to insert elements into heap. The size of the heap is increased by 1. New element is placed appropriately in the heap.
+
+4. pop_heap() :- This function is used to delete the maximum element of the heap. The size of heap is decreased by 1. The heap elements are reorganised accordingly after this operation.
+
+```cpp
+// C++ code to demonstrate the working of
+// push_heap() and pop_heap()
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+	
+	// Initializing a vector
+	vector<int> v1 = {20, 30, 40, 25, 15};
+	
+	// Converting vector into a heap
+	// using make_heap()
+	make_heap(v1.begin(), v1.end());
+	
+	// Displaying the maximum element of heap
+	// using front()
+	cout << "The maximum element of heap is : ";
+	cout << v1.front() << endl;
+	
+	// using push_back() to enter element
+	// in vector
+	v1.push_back(50);
+	
+	// using push_heap() to reorder elements
+	push_heap(v1.begin(), v1.end());
+	
+	// Displaying the maximum element of heap
+	// using front()
+	cout << "The maximum element of heap after push is : ";
+	cout << v1.front() << endl;
+	
+	// using pop_heap() to delete maximum element
+	pop_heap(v1.begin(), v1.end());
+	v1.pop_back();
+	
+	// Displaying the maximum element of heap
+	// using front()
+	cout << "The maximum element of heap after pop is : ";
+	cout << v1.front() << endl;
+	
+	return 0;
+}
+```
+5. sort_heap() :- This function is used to sort the heap. After this operation, the container is no longer a heap.
+
+
+```cpp
+// C++ code to demonstrate the working of
+// sort_heap()
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+	
+	// Initializing a vector
+	vector<int> v1 = {20, 30, 40, 25, 15};
+	
+	// Converting vector into a heap
+	// using make_heap()
+	make_heap(v1.begin(), v1.end());
+	
+	// Displaying heap elements
+	cout << "The heap elements are : ";
+	for (int &x : v1)
+	cout << x << " ";
+	cout << endl;
+	
+	// sorting heap using sort_heap()
+	sort_heap(v1.begin(), v1.end());
+	
+	// Displaying heap elements
+	cout << "The heap elements after sorting are : ";
+	for (int &x : v1)
+	cout << x << " ";
+	
+	return 0;
+}
+```
+6. is_heap() :- This function is used to check whether the container is heap or not. Generally, in most implementations, the reverse sorted container is considered as heap. Returns true if container is heap else returns false.
+
+7. is_heap_until() :- This function returns the iterator to the position till the container is the heap. Generally, in most implementations, the reverse sorted container is considered as heap.
+
+
+```cpp
+// C++ code to demonstrate the working of
+// is_heap() and is_heap_until()
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+	
+	// Initializing a vector
+	vector<int> v1 = {40, 30, 25, 35, 15};
+	
+	// Declaring heap iterator
+	vector<int>::iterator it1;
+	
+	// Checking if container is heap
+	// using is_heap()
+	is_heap(v1.begin(), v1.end())?
+	cout << "The container is heap ":
+	cout << "The container is not heap";
+	cout << endl;
+	
+	// using is_heap_until() to check position
+	// till which container is heap
+	auto it = is_heap_until(v1.begin(), v1.end());
+	
+	// Displaying heap range elements
+	cout << "The heap elements in container are : ";
+	for (it1=v1.begin(); it1!=it; it1++)
+	cout << *it1 << " ";
+	
+	return 0;
+}
+```
+
+## Smarte Pointer
+
+Vollwertige Klassen mit Konstruktor und Destruktor.
+
+* auto_ptr -> Deprecated
+* unique_ptr: Besitzt den rohen Zeiger, nicht kopierbar, verschiebbar
+* shared_ptr: besitzt den rohen Zeiger, nicht unbedingt alleine, kopieren ergibt zwei shared pointer die denselben rohen Zeiger verwalten, beim Entfernen des letzten shared prt wird der rohe Zeiger entfernt.
+* weak_ptr: kleiner Bruder von shared ptr
+
+### auto_ptr
+This class template is deprecated as of C++11. unique_ptr is a new facility with a similar functionality, but with improved security.
+auto_ptr is a smart pointer that manages an object obtained via new expression and deletes that object when auto_ptr itself is destroyed.
+An object when described using auto_ptr class it stores a pointer to a single allocated object which ensures that when it goes out of scope, the object it points to must get automatically destroyed. It is based on exclusive ownership model i.e. two pointers of the same type can’t point to the same resource at the same time. As shown in the below program, copying or assigning of pointers changes the ownership i.e. source pointer has to give ownership to the destination pointer.
+
+```cpp
+// C++ program to illustrate the use of auto_ptr
+#include <iostream>
+#include <memory>
+using namespace std;
+
+class A {
+public:
+	void show() { cout << "A::show()" << endl; }
+};
+
+int main(){
+	// p1 is an auto_ptr of type A
+	auto_ptr<A> p1(new A);
+	p1->show();
+
+	// returns the memory address of p1
+	cout << p1.get() << endl;
+
+	// copy constructor called, this makes p1 empty.
+	auto_ptr<A> p2(p1);
+	p2->show();
+
+	// p1 is empty now
+	cout << p1.get() << endl;
+
+	// p1 gets copied in p2
+	cout << p2.get() << endl;
+
+	return 0;
+}
+
+Output:
+
+A::show()
+0x1b42c20
+A::show()
+0          
+0x1b42c20
+```
+The copy constructor and the assignment operator of auto_ptr do not actually copy the stored pointer instead they transfer it, leaving the first auto_ptr object empty. This was one way to implement strict ownership so that only one auto_ptr object can own the pointer at any given time i.e. auto_ptr should not be used where copy semantics are needed.
+
+Why is auto_ptr deprecated?
+It takes ownership of the pointer in a way that no two pointers should contain the same object. Assignment transfers ownership and resets the rvalue auto pointer to a null pointer. Thus, they can’t be used within STL containers due to the aforementioned inability to be copied.
+
+### unique_ptr
+
+* Eindeutiger Besitzer zu jedem Zeitpunkt. 
+* Verlässt nie den Gültigkeitsbereich in dem er defineirt wurde
+
+```cpp
+#include <memory>                        // unique_ptr
+#include <string>
+#include <iostream>
+using std::unique_ptr; using std::string;
+class Component { };                     // Dummy-Fensterhierarchie
+class Label : public Component { };
+class Textfield : public Component { };
+class Button : public Component {
+public:
+    int id_; // ID zur Unterscheidung der Buttons
+    explicit Button(int id) : id_{id} {}
+};
+class Window { };
+class MyDialog : public Window {
+    string title_;
+    unique_ptr<Label> lblVorname_{new Label{}};         // lauter Datenfelder
+    unique_ptr<Textfield> txtVorname_{new Textfield{}}; // ... an die Lebensdauer
+    unique_ptr<Label> lblNachname_{new Label{}};        // ... der Klasse gebunden
+    unique_ptr<Textfield> txtNachname_{new Textfield{}};
+    unique_ptr<Button> btnOk_{new Button{1}};
+    unique_ptr<Button> btnAbbrechen_{new Button{2}};
+public:
+    explicit MyDialog(const string& title) : title_{title} {}
+    unique_ptr<Button> showModal()
+        { return std::move(btnOk_); }    // Platzhalter-Code; OK gedrückt
+};
+unique_ptr<MyDialog> createDialog() {
+    return unique_ptr<MyDialog>{ // temporärer Wert
+        new MyDialog{"Bitte Namen eingeben"}};
+}
+int showDialog() {
+    unique_ptr<MyDialog> dialog = createDialog();       // lokale Variable
+    unique_ptr<Button> gedrueckt = dialog->showModal(); // Rückgabewert
+    return gedrueckt->id_;
+}
+int main() {
+    int gedrueckt_id = showDialog();
+    if(gedrueckt_id == 1) {
+        std::cout << "Danke, dass Sie OK gedrueckt haben\n";
+    }
+}
+```
+
+std::unique_ptr was developed in C++11 as a replacement for std::auto_ptr.
+unique_ptr is a new facility with similar functionality, but with improved security (no fake copy assignments), added features (deleters) and support for arrays. It is a container for raw pointers. It explicitly prevents copying of its contained pointer as would happen with normal assignment i.e. it allows exactly one owner of the underlying pointer.
+
+So, when using unique_ptr there can only be at most one unique_ptr at any one resource and when that unique_ptr is destroyed, the resource is automatically claimed. Also, since there can only be one unique_ptr to any resource, so any attempt to make a copy of unique_ptr will cause a compile-time error.
+```cpp
+ unique_ptr<A> ptr1 (new A);
+
+ // Error: can't copy unique_ptr
+ unique_ptr<A> ptr2 = ptr1;  
+```
+But, unique_ptr can be moved using the new move semantics i.e. using std::move() function to transfer ownership of the contained pointer to another unique_ptr.
+```cpp
+// Works, resource now stored in ptr2
+unique_ptr<A> ptr2 = move(ptr1); 
+```
+So, it’s best to use unique_ptr when we want a single pointer to an object that will be reclaimed when that single pointer is destroyed.
+
+```cpp
+// C++ program to illustrate the use of unique_ptr
+#include <iostream>
+#include <memory>
+using namespace std;
+
+class A {
+public:
+	void show()
+	{
+		cout << "A::show()" << endl;
+	}
+};
+
+int main()
+{
+	unique_ptr<A> p1(new A);
+	p1->show();
+
+	// returns the memory address of p1
+	cout << p1.get() << endl;
+
+	// transfers ownership to p2
+	unique_ptr<A> p2 = move(p1);
+	p2->show();
+	cout << p1.get() << endl;
+	cout << p2.get() << endl;
+
+	// transfers ownership to p3
+	unique_ptr<A> p3 = move(p2);
+	p3->show();
+	cout << p1.get() << endl;
+	cout << p2.get() << endl;
+	cout << p3.get() << endl;
+
+	return 0;
+}
+
+Output:
+
+A::show()
+0x1c4ac20
+A::show()
+0          // NULL
+0x1c4ac20
+A::show()
+0          // NULL
+0          // NULL
+0x1c4ac20
+```
+The below code returns a resource and if we don’t explicitly capture the return value, the resource will be cleaned up. If we do, then we have exclusive ownership of that resource. In this way, we can think of unique_ptr as safer and better replacement of auto_ptr.
+```cpp
+unique_ptr<A> fun()
+{
+    unique_ptr<A> ptr(new A);
+
+    /* ...
+       ... */
+
+    return ptr;
+}
+```
+When to use unique_ptr?
+
+Use unique_ptr when you want to have single ownership(Exclusive) of the resource. Only one unique_ptr can point to one resource. Since there can be one unique_ptr for single resource its not possible to copy one unique_ptr to another.
+
+### shared_ptr
+
+```cpp
+
+
+```
+
+
+
+
+
 ```cpp
 
 
@@ -1852,11 +3555,6 @@ int main() {
 
 
 
-```cpp
-
-
-```
-
 
 
 ```cpp
@@ -1866,21 +3564,199 @@ int main() {
 
 
 
-
-
-
-
-
-
-
-
 ```cpp
 
 
 ```
+
+
+
+
+
+
 # Kapitel 4 - Die Grundbausteine von C++
 
 ```cpp
 
 
 ```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+
+
+
+# Kapitel 4 - Die Grundbausteine von C++
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+
+
+
+# Kapitel 4 - Die Grundbausteine von C++
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+
+
+
+# Kapitel 4 - Die Grundbausteine von C++
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+```cpp
+
+
+```
+
+
+
+

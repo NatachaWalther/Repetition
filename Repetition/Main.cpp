@@ -21,3 +21,5 @@ std::cout << sptr->x << "\n";
 
 	return 0;
 }
+
+
