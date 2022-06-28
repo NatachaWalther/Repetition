@@ -58,6 +58,167 @@ ternärer Operator: `a > b ? a : b` -> if a > b,  a, else b
 
 Sequenzoperator: wertet von links nach rechts aus, behält aber nur das letzte Ergebnis. -> Do NOT use!
 
+### Operatoren überladen
+
+Operator Function whis define how a certain Operator will behave with a specific Datatype
+
+Most operators can be overloaded, the exceptions are . (dot)  ::  ?:  sizeof
+
+Members of a Class are by defailt private, those of a structure are public, so the stuff needs to be accesible!
+
+naming rules: operator<<, operator+
+
+```cpp
+struct YoutubeChannel {
+    string Name;
+    int SubscribersCount;
+
+    YoutubeChannel(string name, int subscribersCount){
+        Name = name;
+        SubscribersCount = subscribersCount;
+    }
+};
+//For cout << yt1;
+void operator<<(ostream& COUT, YoutubeChannel& ytChannel){     //define first argument, then second by reference -> Original Objects
+
+    COUT<<"Name: " << ytChannel.Name << endl;
+    COUT<<"Subscribers: " << SubscribersCount << endl;
+}
+
+//for cout << yt1 << yt2
+//Global Function, needs 2 Params
+ostream& operator<<(ostream& COUT, YoutubeChannel& ytChannel){     //define first argument, then second by reference -> Original Objects
+
+    COUT<<"Name: " << ytChannel.Name << endl;
+    COUT<<"Subscribers: " << SubscribersCount << endl;
+    return COUT;
+}
+
+int main(){
+    YoutubeChannel yt1 = YoutubeChannel("CodeBeauty", 75000);    
+    YoutubeChannel yt2 = YoutubeChannel("SecondChannel", 80000);    
+
+    cout << yt1;
+    cout << yt1 << yt2
+
+    operator<<(cout, yt1)       //Invoke like a function
+
+}
+```
+
+```cpp
+struct MyCollection {
+    list<YoutubeChannel> myChannels;
+    //Member Function, one Param because MyCollection is already available
+    void operator+=(YoutubeChannel& channel){
+        this->myChannels.push_back(channel);
+    }
+
+};
+
+ostream& operator<<(ostream& COUT, MyCollection myCollection){
+    for(YoutubeChannel ytChannel : myCollection.myChannels){
+        COUT << ytChannel << endl;
+    }
+    return COUT;
+}
+
+int main(){
+    YoutubeChannel yt1 = YoutubeChannel("CodeBeauty", 75000);    
+    YoutubeChannel yt2 = YoutubeChannel("SecondChannel", 80000); 
+    
+    MyCollection myCollection;
+    mycollection += yt1;        //Use 1 to add to a list
+
+    cout << myCollection;
+}
+```
+Typical Error:
+```cpp
+struct YoutubeChannel {
+    string Name;
+    int SubscribersCount;
+
+    YoutubeChannel(string name, int subscribersCount){
+        Name = name;
+        SubscribersCount = subscribersCount;
+    }
+    bool operator==(YoutubeChannel& channel) {
+        return this->Name == channel.Name
+    }
+};
+
+struct MyCollection {
+    list<YoutubeChannel> myChannels;
+    //Member Function, one Param because MyCollection is already available
+    void operator+=(YoutubeChannel& channel){
+        this->myChannels.push_back(channel);
+    }
+    //Minus
+    void operator-=(YoutubeChannel& channel){
+        this->myChannels.remove(channel);       //See == in YTChannel, remove cant compare own objects per default
+    }
+
+};
+
+ostream& operator<<(ostream& COUT, MyCollection myCollection){
+    for(YoutubeChannel ytChannel : myCollection.myChannels){
+        COUT << ytChannel << endl;
+    }
+    return COUT;
+}
+
+int main(){
+    YoutubeChannel yt1 = YoutubeChannel("CodeBeauty", 75000);    
+    YoutubeChannel yt2 = YoutubeChannel("SecondChannel", 80000); 
+    
+    MyCollection myCollection;
+    mycollection += yt1;        //Use 1 to add to a list
+    mycollection -= yt1;        //remove
+
+    cout << myCollection;
+}
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+
 
 ## Eingebaute Datentypen
 
@@ -569,17 +730,30 @@ Use same code with different Datatypes.
 
 
 ```cpp
-void Swap(int &a, in &b){
+//with Int
+void Swap(int &a, int &b){
     int temp = a;
     int a = b;
     int b = temp;
 }
 
+//Swap with generics
+template<typename T>
+void Swap(T &a, T &b){
+    T temp = a;
+    a = b;
+    b = temp;
+}
+
 int main() {
 
     int a = 5, b = 7;
-    Swap(a,b);
+    Swap(a,b);          //Swap<int>(a,b) works as Well
 
+
+    char c = 'c', d = 'd';
+    Swap(c,d);
+    
 
 }
 ```
