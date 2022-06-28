@@ -3025,6 +3025,19 @@ int main() {
 
 # Kapitel 20 - Zeiger
 
+Pointers store an address
+
+```cpp
+int n = 5;
+int *ptr = &n;  //Give ptr addres of n
+
+//Dereference
+*ptr;       //value of n
+
+//Change value
+*ptr = 15;
+```
+
 To access address of a variable to a pointer, we use the unary operator & (ampersand) that returns the address of that variable. For example &x gives us address of variable x. 
 
 
@@ -3401,7 +3414,7 @@ It takes ownership of the pointer in a way that no two pointers should contain t
 ### unique_ptr
 
 * Eindeutiger Besitzer zu jedem Zeitpunkt. 
-* Verlässt nie den Gültigkeitsbereich in dem er defineirt wurde
+* Verlässt nie den Gültigkeitsbereich in dem er definiert wurde
 
 ```cpp
 #include <memory>                        // unique_ptr
@@ -3417,8 +3430,8 @@ public:
     explicit Button(int id) : id_{id} {}
 };
 class Window { };
-class MyDialog : public Window {
-    string title_;
+class MyDialog : public Window {        //Unique_ptr Datenfelder gehören der Klasse MyDialog und 
+    string title_;                      //werden beim Zerstören von dialog in showDialog entfernt.
     unique_ptr<Label> lblVorname_{new Label{}};         // lauter Datenfelder
     unique_ptr<Textfield> txtVorname_{new Textfield{}}; // ... an die Lebensdauer
     unique_ptr<Label> lblNachname_{new Label{}};        // ... der Klasse gebunden
@@ -3427,16 +3440,17 @@ class MyDialog : public Window {
     unique_ptr<Button> btnAbbrechen_{new Button{2}};
 public:
     explicit MyDialog(const string& title) : title_{title} {}
-    unique_ptr<Button> showModal()
-        { return std::move(btnOk_); }    // Platzhalter-Code; OK gedrückt
+    unique_ptr<Button> showModal()         //gibt bestehenden Wert zurück
+        { return std::move(btnOk_); }    // Platzhalter-Code; OK gedrückt, move -> ja Compiler,d as ist ein temp Wert
 };
 unique_ptr<MyDialog> createDialog() {
-    return unique_ptr<MyDialog>{ // temporärer Wert
+    return unique_ptr<MyDialog>{ // temporärer Wert, unique Pointer wird verschoben, bzw sein Inhalt
+                                 //transferiert rohen Zeiger des erzeugtenTempwertes (innen) in unique_ptr<MyDialog> (aussen)
         new MyDialog{"Bitte Namen eingeben"}};
 }
 int showDialog() {
     unique_ptr<MyDialog> dialog = createDialog();       // lokale Variable
-    unique_ptr<Button> gedrueckt = dialog->showModal(); // Rückgabewert
+    unique_ptr<Button> gedrueckt = dialog->showModal(); // Rückgabewert, bestehender Wert
     return gedrueckt->id_;
 }
 int main() {
@@ -3446,6 +3460,17 @@ int main() {
     }
 }
 ```
+
+* Funktion kann unique_ptr als Wert zurückliefern, das verpackte Objekt mit *new* innerhalb der Funktion erzeugen "Factory"
+* Referenz auf unique_ptr nur zurückgeben, wenn er schon existiert
+
+
+
+#### std::move
+Verschiebt selber nicht, erlaubt nur, dass verschoben werden kann.
+
+
+#### Geeks for Geeks
 
 std::unique_ptr was developed in C++11 as a replacement for std::auto_ptr.
 unique_ptr is a new facility with similar functionality, but with improved security (no fake copy assignments), added features (deleters) and support for arrays. It is a container for raw pointers. It explicitly prevents copying of its contained pointer as would happen with normal assignment i.e. it allows exactly one owner of the underlying pointer.
@@ -3526,27 +3551,13 @@ unique_ptr<A> fun()
     return ptr;
 }
 ```
-When to use unique_ptr?
+#### When to use unique_ptr?
 
 Use unique_ptr when you want to have single ownership(Exclusive) of the resource. Only one unique_ptr can point to one resource. Since there can be one unique_ptr for single resource its not possible to copy one unique_ptr to another.
 
 ### shared_ptr
 
-```cpp
-
-
-```
-
-
-
-
-
-```cpp
-
-
-```
-
-
+Teilt Objekt das er besitzt mit anderen shared und weak_ptr. Das verpackte Objekt existiert nur ein mal.
 
 ```cpp
 
@@ -3569,6 +3580,125 @@ Use unique_ptr when you want to have single ownership(Exclusive) of the resource
 
 ```
 
+
+## Video Smart Pointer
+
+### Shared Pointer
+Container or Wrapper for a raw Pointer. 
+Deallocate Memory automatically -> Destructor
+
+#include \<memory> nicht vergessen!
+
+```cpp
+#include <iostream>
+#include <memory>
+
+//Create
+unique_ptr<int>unPtr1=make_unique<int>(25);
+//what<Datatype>nameOfPtr=pleaseMakePtr<Datatype>(WhatToStore)
+
+//Dereference
+cout << unPtr1; //Address
+cout << *unPtr1; //Value stored on address
+
+//can't be shared
+unique_ptr<int>unPtr2=unPtr1;       //Error because unPtr1 already owns the Address
+
+//Move ownership of ptr
+unique_ptr<int>unPtr2=move(unPtr1);     //becomes owner of this address
+//Previous owner besomes a nullpointer -> Nullpointer Exception
+```
+
+Pointer to class
+
+```cpp
+#include <iostream>
+#include <memory>
+
+class MyClass {
+   public:
+        MyClass() {
+            cout << "Constructor invoked\n";
+        }
+        ~MyClass() {
+            cout << "Destructor invoked\n";
+        }
+};
+
+int main() {
+
+    //Pointer to object of MyClass
+    unique_ptr<MyClass>uniquePtr1=make_unique<MyClass>();       //Will be destroyed at end of Scope
+
+}
+```
+### Shared Pointer
+
+Can be shared between multiple owners
+
+```cpp
+#include <iostream>
+#include <memory>
+
+class MyClass {
+   public:
+        MyClass() {
+            cout << "Constructor invoked\n";
+        }
+        ~MyClass() {
+            cout << "Destructor invoked\n";
+        }
+};
+
+int main() {
+
+    //Create Shared Pointer
+    shared_ptr<MyClass>shPtr1=make_shared<MyClass>();       //H
+
+}
+```
+
+
+
+```cpp
+
+```
+
+
+
+```cpp
+
+```
+
+
+
+```cpp
+
+```
+
+
+### Shared Pointer
+```cpp
+
+```
+
+
+
+```cpp
+
+```
+
+
+
+```cpp
+
+```
+
+
+
+```cpp
+
+```
 
 
 
