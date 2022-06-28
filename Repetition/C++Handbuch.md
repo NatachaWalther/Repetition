@@ -562,6 +562,68 @@ Spart Rechenzeit bei kurzen Funktionen
 inline int func(double a, double b, double c);
 ```
 
+## Generic functions
+
+Use same code with different Datatypes.
+
+
+
+```cpp
+void Swap(int &a, in &b){
+    int temp = a;
+    int a = b;
+    int b = temp;
+}
+
+int main() {
+
+    int a = 5, b = 7;
+    Swap(a,b);
+
+
+}
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+```cpp
+
+```
+
+
+
+
+
+
 # Kapitel 8 - Anweisungen im Detail
 
 ## if
@@ -3812,26 +3874,271 @@ int* ptr = carray;
 
 
 ```cpp
+#include <iostream>
 
+int main() {
+    int carray[10] = { 1,1 };               // initialisiert zu { 1,1,0,0,0,0,0,0,0,0 }
+    int* ende = carray+10;                  // Zeiger  hinter das letzte Element
+
+    for(int* p =carray+2; p != ende; ++p) {
+        *p = *(p-1) + *(p-2);               // addiert die vorigen beiden Zahlen
+    }
+
+    for(int const * p=carray; p != ende; ++p)
+        std::cout << *p << " ";
+    std::cout << "\n";
+}
 ```
+
+## Verfall von C-Arrays
+
+```cpp
+#include <iostream>
+void fibonacci(int data[], int* ende) {
+    for(int* p = data+2; p != ende; ++p) {
+        *p = *(p-1) + *(p-2);
+    }
+}
+std::ostream& print(std::ostream &os, int data[], int* ende) {
+    for(int const * p=data; p != ende; ++p)
+        std::cout << *p << " ";
+    return os;
+}
+int main() {
+    int carray[10] = { 1,1 }; // initialisiert zu { 1,1,0,0,0,0,0,0,0,0 }
+    fibonacci(carray, carray+10);
+    print(std::cout, carray, carray+10) << "\n";
+}
+```
+
+## Dynamische C-Arrays
+
+```cpp
+void calc(size_t sz) {
+    int carray[10];
+    int darray[10]      //Falsch keine Konstante
+}
+
+//Besser
+void calc (size_t sz) {
+    int[] darray = new int[sz];     //anlegen
+    //....
+    delete[] darray;                //löschen
+}
+```
+
+```cpp
+#include <memory>      // unique_ptr
+#include <iostream>    // cout
+
+std::unique_ptr<int[]> createData(size_t sz) {
+    return std::unique_ptr<int[]>(new int[sz]);
+}
+
+void fibonacci(int data[], int* ende) {
+    for(int* p = data+2; p != ende; ++p) {
+        *p = *(p-1) + *(p-2);
+    }
+}
+
+std::ostream& print(std::ostream &os, int data[], int* ende) {
+    for(int const* p= data; p != ende; ++p)
+        std::cout << *p << " ";
+    return os;
+}
+int main() {
+    std::unique_ptr<int[]> data { createData(10) };
+    data[0] = 1; // setzen Sie Werte im Array durch den unique_ptr
+    data[1] = 1;
+    fibonacci(data.get(), data.get()+10); // holen Sie sich den C-Array-Zeiger mit get()
+    print(std::cout, data.get(), data.get()+10) << "\n";
+}
+```
+
+## C-String
 
 
 
 ```cpp
+#include <string>
+#include <iostream>                    // cout
+using std::string; using std::cout;
+string greet(string name) {
+    return name + "!";                 // string operator+(string, const char*)
+}
 
+int main() {
+    string name{ "Havaloc Vetinari" }; // explizit: string(const char*)
+    cout << "Angua";                   // ostream& operator<<(ostream&, const char*)
+    cout <<                            // ostream& operator<<(ostream&, string)
+      greet("Carrot Ironfoundersson"); // implizit: string(const char*)
+}
 ```
+
+## Iteratoren
+Anfang mit Methode begin() holen, bei freien Funktionen end(container), Ende mit end() oder end(container). Funktioniert für alle Standardcontainer.
 
 
 
 ```cpp
-
+#include <vector>
+#include <iostream> // cout
+using std::vector;
+int main() {
+    vector data{ 5,4,3,2,1 };
+    vector<int>::const_iterator ende = data.end(); // oder end(data)
+    for(vector<int>::const_iterator it = data.begin(); it!=ende; ++it) {
+        std::cout << *it << " ";
+    }
+    std::cout << "\n";
+}
 ```
+Iterator mit ++ inkrementieren, Überprüfung mit it(erator) != data(end)
+
+Grösse mit end(date)-begin(data) bestimmen oder difference aus \<iterator>. 
+### Zeiger als Iteratoren
+
+
+```cpp
+#include <iostream>   // cout
+#include <iterator>   // ostream_iterator
+#include <algorithm>  // copy
+
+int main () {
+  int data[6] = { 1, 2, 3, 7, 9, 10 };
+  std::ostream_iterator<int> out_it (std::cout,", ");
+  std::copy(data, data+6, out_it);           // Zeiger als Iteratoren
+  std::cout << "\n";                         // Ausgabe: 1, 2, 3, 7, 9, 10
+}
+```
+## Function Pointers
+
+Stores Address of a Function
+
+```cpp
+int getNumber() {
+    return 5;
+}
+
+int add(int a, int b){
+    return a + b;
+}
+
+int main() {
+    cout << getNumber();    //Output 5
+    cout << getNumber;      //Output Address of Function
+
+
+    //Function Pointer
+    int(*funcPtr)();            //Can Point to any int function
+    int(*funcPtr)() = getNumber;
+    //returntype(*namePtr)(Params);
+
+    cout << funcPtr();      //Calls function
+
+    //Again with function which uses Parameters
+    int(*funcPtr)(int, int) = add;  
+
+    cout << add(2, 4);
+    cout << funcPtr(3,4);
+}
+```
+
+### Purpose of function pointer:
+
+Pass a Function as an Agrument to another function
 
 
 
 ```cpp
+#include <iostream>
+#include<vector>
+using namespace std;
+
+bool ascendingCompare(int a, int b) {
+	return a < b;
+}
+bool descendingCompare(int a, int b) {
+	return a > b;
+}
+//Sort vector in ascending number
+void sortAscending(vector<int>& numbersVector)
+{
+	for (int startIndex = 0; startIndex < numbersVector.size(); startIndex++)
+	{
+		int bestIndex = startIndex;
+
+		for (int currentIndex = startIndex + 1; currentIndex < numbersVector.size(); currentIndex++)
+		{
+			// We are doing comparison here
+			if (ascendingCompare(numbersVector[currentIndex], numbersVector[bestIndex]))
+				bestIndex = currentIndex;
+		}
+
+		swap(numbersVector[startIndex], numbersVector[bestIndex]);
+	}
+}
+void sortDescending(vector<int>& numbersVector)
+{
+	for (int startIndex = 0; startIndex < numbersVector.size(); startIndex++)
+	{
+		int bestIndex = startIndex;
+
+		for (int currentIndex = startIndex + 1; currentIndex < numbersVector.size(); currentIndex++)
+		{
+			// We are doing comparison here
+			if (descendingCompare(numbersVector[currentIndex], numbersVector[bestIndex]))
+				bestIndex = currentIndex;
+		}
+
+		swap(numbersVector[startIndex], numbersVector[bestIndex]);
+	}
+}
+
+
+void customSort(vector<int>& numbersVector, bool(*compareFunctionPtr)(int, int))
+{
+	for (int startIndex = 0; startIndex < numbersVector.size(); startIndex++)
+	{
+		int bestIndex = startIndex;
+
+		for (int currentIndex = startIndex + 1; currentIndex < numbersVector.size(); currentIndex++)
+		{
+			// We are doing comparison here
+			if (compareFunctionPtr(numbersVector[currentIndex], numbersVector[bestIndex]))
+				bestIndex = currentIndex;
+		}
+
+		swap(numbersVector[startIndex], numbersVector[bestIndex]);
+	}
+}
+
+
+void printNumbers(vector<int>& numbersVector) {
+	for (int i = 0; i < numbersVector.size(); ++i)
+		cout << numbersVector[i] << ' ';
+}
+
+int main()
+{
+	vector<int> numbersVector = { 4,2,1,3,6,5 };
+	//sortAscending(numbersVector);
+	//sortDescending(numbersVector);
+
+	bool (*funcPtr)(int, int) = descendingCompare;
+	customSort(numbersVector, funcPtr);
+	printNumbers(numbersVector);
+
+	system("pause>0");
+}
+```
+
+
+```cpp
+
 
 ```
+
 
 
 
