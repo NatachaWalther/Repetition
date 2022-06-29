@@ -4383,53 +4383,245 @@ int main() {
 }
 ```
 
+### Methodenparameter
 
 
 ```cpp
+#include <iostream>
+class Printer {
+    std::ostream& trg_;
+public:
+    explicit Printer(std::ostream& target)
+        : trg_(target)
+        {}
+    template<typename TYP>
+    Printer& print(const TYP& arg) {
+        trg_ << arg;
+        return *this;
+    }
+};
+int main() {
+    Printer normal(std::cout);
+    normal.print(7).print(" ").print(3.1415).print("\n");
+    Printer fehler(std::cerr);
+    fehler.print(8).print(" ").print(2.7183).print("\n");
+}
+```
+## Klasse als Funktion
+
+Abhängig vom Parameter Addition oder Multiplikation
+
+```cpp
+#include <functional> // function
+#include <iostream>   // cout
+int berechne(int a, int b, std::function<int(int,int)> binop) {
+    //std::function<int(int,int)> -> Beliebige Funktion mit int,int als Parameter und int als Rückgabe
+    return binop(a,b);
+}
+
+int plus(int a, int b) { return a+b; }
+int mal(int a, int b) { return a*b; }
 
 
+int main() {
+    std::cout << berechne(3, 4, plus) << "\n"; // Ausgabe: 7
+    std::cout << berechne(3, 4, mal) << "\n";  // Ausgabe: 12
+}
 ```
 
+Normale Funktionsdeklaration `int plus(int arg1, int arg2);` 
+
+Alle Namen entfernt `int(int,int)` -> Templateargument für `function<...>`
+
+## Arten von "Funktionen"
+
+* **Funktionen und Methoden:** Definierter Kopf mit Rückgabetyp, Funktionsname, Aufrufparameter und Funktionskörper
+* **Funktoren und Funktionsobjekte:** Klasse die den *operator()* defineirt. Instanzen dieser verhalten sich wie Funktionen
+* **anonyme Funktionen und Lambdas** 
+
+
+## Funktoren
+
+Instanzen einer Klasse operator() verhalten sich wie Funktionen. 
+
 ```cpp
+#include <iostream>                   // cout
+using std::cout;
+class Inkrement {
+   int menge_;
+public:
+    explicit Inkrement(int menge) : menge_{menge} {}
+    int operator()(int wert) const  { // macht Instanzen aufrufbar
+        return wert + menge_;
+    }
+    void clear() {
+        menge_ = 0;
+    }
+};
+int main() {
+    Inkrement plusVier{4};               // Instanz erzeugen
+    Inkrement plusElf{11};               // noch eine Instanz
+    cout << plusVier(8) << "\n";         // Ausgabe: 12
+    int erg = 2 * plusElf(5) - 7;        // erg ist 25
+    cout << plusElf(erg/5) << "\n";      // Ausgabe: 16
+    cout << 3 * Inkrement{1}(7) << "\n"; // Ausgabe: 24
+    Inkrement plusNix = plusElf;
+    plusNix.clear();                     // Zustand ändern
+    cout << plusNix(1) << "\n";          // Ausgabe: 1
+}
+```
+Consider a function that takes only one argument. However, while calling this function we have a lot more information that we would like to pass to this function, but we cannot as it accepts only one parameter. What can be done?
 
+One obvious answer might be global variables. However, good coding practices do not advocate the use of global variables and say they must be used only when there is no other alternative.
 
+Functors are objects that can be treated as though they are a function or function pointer. Functors are most commonly used along with STLs in a scenario like following:
+
+A functor (or function object) is a C++ class that acts like a function. Functors are called using the same old function call syntax. To create a functor, we create a object that overloads the operator().
+
+The line,
+`MyFunctor(10);` is same as `MyFunctor.operator()(10);`
+
+```cpp
+// C++ program to demonstrate working of
+// functors.
+#include <bits/stdc++.h>
+using namespace std;
+
+// A Functor
+class increment
+{
+private:
+	int num;
+public:
+	increment(int n) : num(n) { }
+
+	// This operator overloading enables calling
+	// operator function () on objects of increment
+	int operator () (int arr_num) const {
+		return num + arr_num;
+	}
+};
+
+// Driver code
+int main()
+{
+	int arr[] = {1, 2, 3, 4, 5};
+	int n = sizeof(arr)/sizeof(arr[0]);
+	int to_add = 5;
+
+	transform(arr, arr+n, arr, increment(to_add));
+
+	for (int i=0; i<n; i++)
+		cout << arr[i] << " ";
+}
+```
+### Stackoverflow
+A functor is pretty much just a class which defines the operator(). That lets you create objects which "look like" a function:
+```cpp
+// this is a functor
+struct add_x {
+  add_x(int val) : x(val) {}  // Constructor
+  int operator()(int y) const { return x + y; }
+
+private:
+  int x;
+};
+
+// Now you can use it like this:
+add_x add42(42); // create an instance of the functor class
+int i = add42(8); // and "call" it
+assert(i == 50); // and it added 42 to its argument
+
+std::vector<int> in; // assume this contains a bunch of values)
+std::vector<int> out(in.size());
+// Pass a functor to std::transform, which calls the functor on every element 
+// in the input sequence, and stores the result to the output sequence
+std::transform(in.begin(), in.end(), out.begin(), add_x(1)); 
+assert(out[i] == in[i] + 1); // for all i
 ```
 
+There are a couple of nice things about functors. One is that unlike regular functions, they can contain state. The above example creates a function which adds 42 to whatever you give it. But that value 42 is not hardcoded, it was specified as a constructor argument when we created our functor instance. I could create another adder, which added 27, just by calling the constructor with a different value. This makes them nicely customizable.
+
+As the last lines show, you often pass functors as arguments to other functions such as std::transform or the other standard library algorithms. You could do the same with a regular function pointer except, as I said above, functors can be "customized" because they contain state, making them more flexible (If I wanted to use a function pointer, I'd have to write a function which added exactly 1 to its argument. The functor is general, and adds whatever you initialized it with), and they are also potentially more efficient. In the above example, the compiler knows exactly which function std::transform should call. It should call add_x::operator(). That means it can inline that function call. And that makes it just as efficient as if I had manually called the function on each value of the vector.
+
+If I had passed a function pointer instead, the compiler couldn't immediately see which function it points to, so unless it performs some fairly complex global optimizations, it'd have to dereference the pointer at runtime, and then make the call.
+
+## Klassentemplates
+
+### Templates definieren
+
 ```cpp
+template <typename T>
+class MyContainer {
+    T data_;
 
-
+public:
+    void setData(const T& d) { data_ = d; }
+    T getData() const { return data_; }
+};
 ```
 
+Methoden ausserhalb des Klassentemplates:
 
 ```cpp
+template <typename T>
+class MyContainer {
+    T data_;
+public:
+    void setData(const T& d);
+    T getData() const;
+};
 
+template <typename T>
+void MyContainer<T>::setData(const T& d) {
+    data_ = d;
+}
 
+template <typename T>
+T MyContainer<T>::getData() const {
+    return data_;
+}
 ```
 
-```cpp
-
-
-```
-
+### Objekte erzeugen
 
 
 ```cpp
+#include <iostream>
+#include <string>
 
+template <typename T>
+class MyContainer {
+    T data_;
+public:
+    void setData(const T& d) { data_ = d; }
+    T getData() const { return data_; }
+};
+class IntValue {
+    int val_;
+public:
+    explicit IntValue(int val=0) : val_(val) {}
+    int getInt() const { return val_; }
+};
 
-```
-
-
-
-```cpp
-
-
-```
-
-
-
-```cpp
-
-
+int main() {
+    // C-Array mit drei MyContainer<double>-Instanzen
+    MyContainer<double> dcont[3];           //Compiler generiert Klasse für myContainer<double> und legt 3 instanzen an
+    dcont[0].setData(123.123);
+    dcont[1].setData(234.234);
+    std::cout << dcont[0].getData() << std::endl;
+    std::cout << dcont[1].getData() << std::endl;
+    // eigener Datentyp als formaler Parameter
+    IntValue ival{100'000};
+    MyContainer<IntValue> scont;
+    scont.setData(ival);
+    std::cout << scont.getData().getInt() << std::endl;
+    // string als formaler Parameter
+    std::string str("Text");
+    MyContainer<std::string> strCont;
+    strCont.setData(str);
+    std::cout << strCont.getData() << std::endl;
+}
 ```
 
 
