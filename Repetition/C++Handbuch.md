@@ -180,46 +180,6 @@ int main(){
 }
 ```
 
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-
-
 ## Eingebaute Datentypen
 
 Ohne #include verwendbar. 
@@ -292,6 +252,10 @@ replace |Ersetzen eines Teils durch eine andere Zeichenfolge
 starts_with |Prüfe, ob der der Anfang passt, seit C++20
 
 Iterieren mit begin() und end(), finden mit find(), vergleichen mit compare()
+
+s + verwende für strings, gaht denn nur für string objekt
+
+Wenn en char array hesch muesch strcat() verwende wobi det selber luege muesch dass de char array gnueg gross für beidi isch
 
 ## Streams
 
@@ -757,45 +721,6 @@ int main() {
 
 }
 ```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
-```cpp
-
-```
-
-
-
-
 
 
 # Kapitel 8 - Anweisungen im Detail
@@ -2072,6 +1997,11 @@ int main() {
     for(int i=0; i<10; ++i) { d.get(); }
 } // Ausgabe: get wurde 10-mal benutzt
 ```
+### Faustregeln
+
+* Treffen zwei *const* aufeinander ist das Ergebnis *const*
+* Treffen zwei *&* aufeinander ist das Ergebnis *&*
+
 # Kapitel 15 - Vererbung
 
 ## Beziehungen
@@ -2967,7 +2897,7 @@ We can overload
 
 * Uniary operators
 * Binary operators
-* Special operators ( [ ], () etc)
+* Special operators ( \[ ], () etc)
  
 ### Operators that cannot be overloaded 
 
@@ -4307,6 +4237,163 @@ int main()
 }
 ```
 
+# Kapitel 21 - Makros
+
+* Andere Dateien mit \#include einbinden
+* Bedingte Kompilierung mit \#if und\#ifdef
+* Makros mit \#define
+
+Direktive | Erklärung
+---|---
+\#include | andere Datei einbinden
+\#define | Bezeichner oder Makro definieren
+\#undef | Bezeichnerdefinition entfernen
+\#ifdef | prüfen ob Präprozessorbezeichener definiert ist
+\#ifndef | prüfen ob Präprozessorbezeichener nicht definiert ist
+\#if | Präprozessorausdruck prüfen
+\#else | alternativer Quelltext zu einem der Präprozessor ifs
+\#elif | alternativer Quelltext und eine weitere Prüfung
+\#endif | Ende des alternativen Quelltexts
+\#line | Aktuelle Zeilennummer und Dateiname für Fehlermeldungen des Compilers festlegen
+\#error | mit einer Fehlermeldung abbrechen
+\#pragma | Spezialkonstruktion an den Compiler - compilerabhängig
+
+
+-> Use as few as possible!!
+
+# Lambdas
+
+Write inline anonymus functions - unnamed, not going to be reused
+short unnamed snippets
+
+```cpp
+#include <vector>
+#include <iostream>
+#include <algorithm>
+
+
+int main() {
+//Overkill
+struct {
+    void operator() (int x) {   //Overwrite Operator
+        std::cout << x << "\n";
+    }
+}something;
+
+
+    //[] (int x) {std::cout << x << "\n"}; -> Replaces something
+
+    //[capture clause](parameters){definition of lambda function}
+    std::vector <int> v{2, 3, 7, 14, 23}
+
+    //simple Lambda
+    //std::for_each(v.begin(), v.end(), something);
+    std::for_each(v.begin(), v.end(),[] (int x) {std::cout << x << "\n";});
+
+    //a bit more complicated
+    std::for_each(v.begin(), v.end(),[] (int x) {
+        if (x%2 == 0) 
+            std::cout << x << "is even\n"; 
+        else std::cout << x << "is odd\n";
+    });
+
+    //with variable
+    int d = 3;
+    std::for_each(v.begin(), v.end(),[d] (int x) {
+        if (x%d == 0) 
+            std::cout << x << "is divisible by " << d << "\n"; 
+        else std::cout << x << "is not divisible by " << d << "\n";
+    });
+    //You can't change value of variable in lambda -> need to pass by reference [&d]
+    
+    //with multiple variables
+    int d = 3, e = 5;
+    std::for_each(v.begin(), v.end(),[d, e] (int x) {
+        if (x%d == 0) 
+            std::cout << x << "is divisible by " << d << "\n"; 
+        else if (x% == e )
+            std::cout << x << "is divisible by " << e << "\n";
+        else std::cout << x << "is not divisible by " << d << <<" or " << e << "\n";
+    });  
+}
+```
+
+
+# Kapitel 23 - Templates
+
+## Funktionstemplates
+
+
+
+```cpp
+template <typename T> 
+template <class T>          //also possible
+void print(T value) {
+    cout << value;
+}
+
+//Aufrufen
+print<int>(5);
+
+//oder
+print(5);
+```
+### Instanzieren
+
+Instanzieren Funktionstemplate in dem Moment, in dem es mit einem konkreten Typ aufgerufen wird.
+
+```cpp
+#include <iostream>
+using std::cout;
+
+template<typename TYP>
+  void func(TYP a) { cout << a <<" TYP\n"; }
+void func(int a) { cout << a << " int\n"; }
+
+//Mit und ohne explizite Typangabe
+int main() {
+    func<int>(8); // Ausgabe: 8 TYP
+    func(8);      // Ausgabe: 8 int
+}
+```
+
+### Zahlen als Typparameter
+
+Beispiel Funktion die verschieden grosse Arrays erzeugt.
+
+`array<int, n> createArray(size_t n);`
+
+-> Geht nicht, da n keine constexpr ist
+
+Dafür createArray() zum Funktionstemplate machen
+```cpp
+#include <array>
+#include <iostream> // cout
+using std::array; using std::cout;
+template<size_t SIZE>
+array<int,SIZE> createArray() {
+    array<int,SIZE> result{};
+    return result;
+}
+int main() {
+    auto data = createArray<5>();
+    data[3] = 33;
+    for(auto e : data) cout << e << " ";
+    cout << "\n";
+}
+```
+
+
+
+```cpp
+
+
+```
+
+```cpp
+
+
+```
 
 ```cpp
 
@@ -4314,18 +4401,10 @@ int main()
 ```
 
 
-
-
-
-
-# Kapitel 4 - Die Grundbausteine von C++
-
 ```cpp
 
 
 ```
-
-
 
 ```cpp
 
