@@ -1460,5 +1460,570 @@ int main()
 } 
 ```
 
+## PVA 4
 
+### 4-1
+Vererbung. Lassen Sie den untenstehenden Code laufen und sehen Sie wie den Aufruf von Konstruktoren und Destruktoren bei der Vererbung funktionieren
+
+```cpp
+//This program demonstrates the order in which base and derived class
+//constructors and destructors are called.
+#include <iostream>
+using namespace std;
+
+//***********
+//Base class declaration
+//***********
+
+class BaseClass
+{
+public:
+	BaseClass() //default constructor
+		 {
+			cout << "This is the BaseClass constructor.\n";
+		}
+	~BaseClass() //destructor
+		{
+			cout << "This is the BseClass destructor.\n";
+		}
+
+};
+
+//**********
+//Derived class declaration
+//**********
+
+class DerivedClass : public BaseClass
+{
+public:
+	DerivedClass() //default constructor
+		{
+			cout << "This is the DerivedClass constructor.\n";
+		}
+	~DerivedClass() //destructor
+		{
+			cout << "This is the DerivedClass destructor.\n";
+		}
+};
+
+//********
+//main function
+//********
+
+int main() {
+	cout << "We will now define a DerivedClass object.\n";
+	DerivedClass Object;
+	cout << "The end of program.\n";
+	system("pause");
+	return 0;
+}
+
+/* ----- OUTPUT ----- */
+// We will now define a DerivedClass object.
+// This is the BaseClass constructor.       
+// This is the DerivedClass constructor.    
+// The end of program.
+// Press any key to continue . . . 
+// This is the DerivedClass destructor.
+// This is the BseClass destructor.
+```
+
+### 4-2
+Vervollständigen Sie die Klasse Time.cpp mit dem Header-File Time.h und die Unterklasse TimexExt.cpp mit dem Header-File TimeExt.h und testen Sie es, so dass Sie folgendes erhalten:
+
+```cpp
+// main.cpp
+#include "exttime.h"
+int main(int argc, char const *argv[])
+{
+    /* code */
+    ExtTime a;
+    ExtTime b(0,49,2, PDT);
+
+    a.Write();
+    a.Set(16,49,23, CDT);
+    a.Write();
+    b.Write();
+    b.Write();
+    return 0;
+}
+
+// exttime.h
+#pragma once
+#include "time.h"
+
+enum ZoneType { EST, CST, MST, PST, EDT, CDT, MDT, PDT };
+
+
+class ExtTime : Time
+{
+private:
+    /* data */
+    ZoneType zone;
+public:
+    ExtTime(int initH, int initM, int initS, ZoneType initZone);
+    ExtTime();
+
+    void Set(int h, int m, int s, ZoneType timeZone);
+    void Write() const;
+    // void Write() const override;
+};
+
+// exttime.cpp
+#include <iostream>
+using namespace std;
+#include <string>
+
+#include "time.h"
+#include "exttime.h"
+
+void  ExtTime::Set(int h, int m, int s, ZoneType timeZone)
+{
+	Time::Set(h, m, s);  // same name function call
+	zone = timeZone;
+}
+
+void  ExtTime::Write()   const  // function overriding
+{
+	string  zoneString[8] =
+	{ "EST", "CST", "MST", "PST", "EDT", "CDT", "MDT", "PDT" };
+
+	Time::Write();
+	cout << " " << zoneString[zone] << endl;
+}
+
+ExtTime::ExtTime(int initH, int initM, int initS, ZoneType initZone)
+	: Time(initH, initM, initS)
+	// constructor initializer
+{
+	zone = initZone;}
+ExtTime::ExtTime()
+{
+	zone = EST;
+}
+
+```
+
+### 4-3
+This-Pointer. Finden Sie den Fehler im untenstehenden Code:
+
+```cpp
+// main,cpp
+#include <iostream>
+#include "person.h"
+#include "aufshr.h"
+
+Person *Belegschaft[10];
+int main(){
+	Aufseherin *AufsZg;
+	Programmiererin *ProgZg;
+	Sekretaer *SekrZg;
+
+	std::cout << "Belegschaft XYZ -- Der Gehalt ist monatlich.\n\n";
+
+	AufsZg = new Aufseherin;
+   	AufsZg->InitDaten("Hirraly", 7000, "Praesidentin");
+   	Belegschaft[0] = AufsZg;
+
+   	ProgZg = new Programmiererin;
+   	ProgZg->InitDaten("Jenny Hacker", 5000, "Testerin",  "Pascal");
+   	Belegschaft[1] = ProgZg;
+
+   	ProgZg = new Programmiererin;
+   	ProgZg->InitDaten("OOP Genie", 9500, "Analysevorstand", "C++");
+   	Belegschaft[2] = ProgZg;
+
+   	SekrZg = new Sekretaer;
+   	SekrZg->InitDaten("Till Tipper", 1300, 1, 85);
+   	Belegschaft[3] = SekrZg;
+
+   	AufsZg = new Aufseherin;
+   	AufsZg->InitDaten("Elli Wichtig", 4350, "Verkaufsvorstand");
+   	Belegschaft[4] = AufsZg;
+
+   	ProgZg = new Programmiererin;
+   	ProgZg->InitDaten("Elfriede Soundso", 4750, "Code Warterin",
+								"Assemblersprache");
+   	Belegschaft[5] = ProgZg;
+
+   //code for Zeige(): alle 6 obigen Objekte ausgeben 
+   for (size_t i = 0; i < 6; i++)
+   {
+       Belegschaft[i]->Zeige();
+   }
+   
+	return 0;
+}
+
+// person.h
+#pragma once
+#include <string>
+
+class Person
+{
+protected:	  // Diese Variablen sind in Subklassen verfügbar
+   std::string Name;
+   int Gehalt;
+public:
+   virtual void Zeige(void);
+};
+
+// person.cpp
+#include <iostream>
+#include "person.h"
+
+// Diese Funktion sollte nie aufgerufen werden. Sollte
+// dies passiert, betrachten wir das als Fehler.
+void Person::Zeige(void)
+{
+   std::cout << "Person::Zeige - fehlende Funktion in der Subklasse\n";
+}
+
+// aufshr.h
+#pragma once
+#include "person.h"
+
+class Programmiererin : public Person
+{
+private:
+    /* data */
+    std::string Position;
+    std::string Sprache;
+
+public:
+    void Zeige();
+    void InitDaten(std::string name, int gehalt, std::string position, std::string sprache);
+};
+
+class Aufseherin : public Person
+{
+private:
+    /* data */
+    std::string Position;
+public:
+    void Zeige();
+    void InitDaten(std::string name, int gehalt, std::string position);
+};
+
+class Sekretaer : public Person
+{
+private:
+    /* data */
+    int Skill;
+    int TipProMin;
+public:
+    void Zeige();
+    void InitDaten(std::string name, int gehalt, int skill, int tipProMin);
+};
+
+// aufshr.cpp
+#include "aufshr.h"
+#include <string>
+#include <iostream>
+
+void Programmiererin::InitDaten(std::string name, int gehalt, std::string position, std::string sprache){
+    Name = name;
+    Gehalt = gehalt;
+    Position = position;
+    Sprache = sprache;
+}
+
+void Programmiererin::Zeige(){
+
+   std::cout << "Programmiererin::Zeige\n";
+   std::cout << Name << "\n";
+   std::cout << Gehalt << "\n";
+   std::cout << Position << "\n";
+   std::cout << Sprache << "\n" << std::endl;
+}
+
+void Aufseherin::InitDaten(std::string name, int gehalt, std::string position){
+    Name = name;
+    Gehalt = gehalt;
+    Position = position;
+}
+
+void Aufseherin::Zeige(){
+   std::cout << "Aufseherin::Zeige\n";
+   std::cout << Name << "\n";
+   std::cout << Gehalt << "\n";
+   std::cout << Position << "\n" << std::endl;
+}
+
+void Sekretaer::InitDaten(std::string name, int gehalt, int skill, int tipProMin){
+    Name = name;
+    Gehalt = gehalt;
+    Skill = skill;
+    TipProMin = tipProMin;
+}
+
+void Sekretaer::Zeige(){
+   std::cout << "Sekretaer::Zeige\n";
+   std::cout << Name << "\n";
+   std::cout << Gehalt << "\n";
+   std::cout << Skill << "\n";
+   std::cout << TipProMin << "\n" << std::endl;
+}
+
+```
+
+### 4-4
+Abstract Class / Pure Virtual Function
+Ergänzen Sie den code und testen Sie getArea für die Klassen Circle und Rectangle  
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class shape{
+     public:
+         virtual void getArea() =0;  //pure virtual function
+};
+class Circle: public shape{
+      public: 
+        void getArea(){
+            cout<< "Enter the radius "<< endl;
+            int r;
+            cin>> r;
+            cout << " The area of circle is : " << (3.14*r*r) << endl;
+        };
+};
+class Rectangle: public shape{
+    public:
+    //code here, tip: area of rectangle = height * lengthvoid getArea(){
+          
+    void getArea(){
+        cout << "Enter the side a "<< endl;
+        int a;
+        cin>> a;
+        cout<< "Enter the side b "<< endl;
+        int b;
+        cin>> b;
+        cout << " The area of rectangle is : " << (a*b);
+    };
+};
+
+int main(int argc, char const *argv[])
+{
+    Circle circle;
+    Rectangle rect;
+
+    circle.getArea();
+    rect.getArea();
+
+    return 0;
+};
+```
+
+### 4-5
+Multiple Inheritance
+a)	Lassen Sie das folgende Programm laufen. Was kriegen Sie als Ausgabe?
+b)	Beschreiben Sie wie es zu dieser Ausgabe gekommen ist
+
+```cpp
+ #include<iostream> 
+using namespace std; 
+class Person { 
+   // Data members of person  
+public: 
+    Person(int x)  { cout << "Person::Person(int ) called" << endl;   } 
+}; 
+  
+class Faculty : public Person { 
+   // data members of Faculty 
+public: 
+    Faculty(int x):Person(x)   { 
+       cout<<"Faculty::Faculty(int ) called"<< endl; 
+    } 
+}; 
+  
+class Student : public Person { 
+   // data members of Student 
+public: 
+    Student(int x):Person(x) { 
+        cout<<"Student::Student(int ) called"<< endl; 
+    } 
+}; 
+  
+class TA : public Faculty, public Student  { 
+public: 
+    TA(int x):Student(x), Faculty(x)   { 
+        cout<<"TA::TA(int ) called"<< endl; 
+    } 
+}; 
+  
+int main()  { 
+    TA ta1(30); 
+} 
+
+/* ----- OUTPUT ----- */
+// Person::Person(int ) called
+// Faculty::Faculty(int ) called
+// Person::Person(int ) called
+// Student::Student(int ) called
+// TA::TA(int ) called
+// Multiple inheritence von links nach rechts konstruktor aufgerufen und immer zuerst parent
+```
+
+### 4-6
+Multiple Inheritance
+Die Lösung zur Mehrdeutlichkeit der Aufgabe P4-5 ist das Schlüsselwort virtual.
+a)	Lassen Sie das folgende Programm laufen, was ist die Ausgabe?
+b)	Beschreiben Sie wie es zu dieser Ausgabe gekommen ist
+
+```cpp
+#include<iostream> 
+using namespace std; 
+class Person { 
+public: 
+    Person(int x)  { cout << "Person::Person(int ) called" << endl;   } 
+    Person()     { cout << "Person::Person() called" << endl;   } 
+}; 
+  
+class Faculty : virtual public Person { 
+public: 
+    Faculty(int x):Person(x)   { 
+       cout<<"Faculty::Faculty(int ) called"<< endl; 
+    } 
+}; 
+  
+class Student : virtual public Person { 
+public: 
+    Student(int x):Person(x) { 
+        cout<<"Student::Student(int ) called"<< endl; 
+    } 
+}; 
+  
+class TA : public Faculty, public Student  { 
+public: 
+    TA(int x):Student(x), Faculty(x)   { 
+        cout<<"TA::TA(int ) called"<< endl; 
+    } 
+}; 
+  
+int main()  { 
+    TA ta1(30); 
+} 
+
+/* ----- OUTPUT ----- */
+// Person::Person() called
+// Faculty::Faculty(int ) called
+// Student::Student(int ) called
+// TA::TA(int ) called
+// Vererbter konstruktor wird wegen virtual nur einmal aufgerufen
+```
+
+### 4-8
+Class Templates. Vervollständigen Sie den folgenden Code um folgende Ausgabe zu erhalten: 1 2 3 4 5 6 
+
+```cpp
+#include <iostream> 
+using namespace std;
+
+template <typename T>
+class Array {
+private:
+	T *ptr;
+	int size;
+public:
+	Array(T arr[], int s);
+	void print();
+};
+
+template <typename T>
+Array<T>::Array(T arr[], int s) {
+	ptr = new T[s];
+	size = s;
+	for (int i = 0; i < size; i++)
+		ptr[i] = arr[i];
+}
+
+template <typename T>
+void Array<T>::print() {
+	for (int i = 0; i < size; i++)
+		cout << " " << *(ptr + i);
+	cout << endl;
+}
+
+int main() {
+	//code here
+    int i[]={1,2,3,4,5,6};
+    Array<int> a(i, 6);
+    a.print();
+}
+
+```
+
+### 4-9
+Templates. Vervollständigen Sie den folgenden Code um von zwei ganze Zahlen 100 und 75, die grössere Zahl auszugeben
+
+```cpp
+// class templates
+#include <iostream>
+using namespace std;
+
+template <class T>
+class mypair {
+    T a, b;
+public:
+    mypair(T first, T second)
+    {
+        a = first; b = second;
+    }
+    T getmax();
+};
+
+template <class T>
+T mypair<T>::getmax()
+{
+    T retval;
+    retval = a > b ? a : b;
+    return retval;
+}
+
+int main() {
+
+    //code here
+    mypair<int> a(4,10);
+    std::cout << "Max is: " << a.getmax() << endl;
+}
+
+```
+
+### 4-10
+Templates. Vervollständigen Sie den folgenden Code 
+
+```cpp
+#include <iostream> 
+using namespace std;
+
+template < class T>
+class Maths {
+	T a, b;
+public:
+	 Maths(T x, T y) {
+	 a = x;
+	 b = y;
+ }
+ T maxValue();
+};
+
+template < class T>
+class Maths {
+    T a, b;
+    public:
+    Maths(T x, T y) {
+    a = x;
+    b = y;
+    }
+    T maxValue();
+};
+
+int main() {
+	Maths<int> mat(45, 76);//change the type to double, float, 
+	cout << mat.maxValue()<<endl;	
+	return 0;
+}
+
+```
 
