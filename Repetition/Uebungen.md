@@ -2507,343 +2507,2045 @@ int main() {
 ## PVA 6
 
 ### 6-1
-Test
+Wie kann man das untenstehende Programm ergänzen, um die folgende Ausgabe zu erhalten?
+Child class disp() function
+Parent class disp() function
 
 ```cpp
+#include <iostream>
+using namespace std;
+class A {
+public:
+	void disp() {
+		cout << "Parent class disp() function"<<endl;
+	}
+};
+class B : public A {
+public:
+	void disp() {
+		// Baseclass::disp();
+		cout << "Child class disp() function"<<endl;
+	}
+};
+
+int main() {
+	
+	//Creating object of child class B	
+	B obj;
+	obj.disp();
+	A obj1;
+	obj1.disp();
+	//code here 	
+	
+	return 9;
+}
 
 ```
 
 ### 6-2
-Test
+Function Overloading
+Implementieren Sie die Summe-Funktionen
 
 ```cpp
+#include <iostream>
+using namespace std;
+// overloaded functions
+float sum(int x, int y){
+    return x+y;
+}
+float sum(float x, float y){
+    return x+y;
+}
+float sum(int x, float y){
+    return x+y;
+}
+float sum(float x, int y){
+    return x+y;
+}
+int main() {
+	//This will call the second function
+	cout << sum(15.7f, 12.7f) << endl;
+
+	//This will call the first function
+	cout << sum(200, 100) << endl;
+
+	//This will call the third function
+	cout << sum(100, 20.7f) << endl;
+
+	//This will call the fourth function
+	cout << sum(90.8f, 30) << endl;
+	
+	return 0;
+}
 
 ```
 
 ### 6-3
-Test
+Definieren Sie zwei Wirkfunktionen "printtype" jeweils für ein Argument vom Datentyp "int" und vom Datentyp "double". Jede Wirkfunktion soll den Namen des Datentyps ihres Parameters ausgeben.
+double
+int
 
 ```cpp
+#include <iostream> 
+#include <string>
+using namespace std;
+
+// ... Hier Wirkfunktionen definieren
+void printtype(int a){
+    cout << decltype(a);
+}
+void printtype(double a){
+    cout << decltype(a).name;
+}
+
+int main ( )
+{ 
+   printtype( 3.1415926 ); 
+   cout << endl; 
+   printtype(0); 
+   cout << endl; 
+}
 
 ```
 
 ### 6-4
-Test
+transform() in STL
+Lassen Sie die folgenden zwei Programme laufen um die Funktionsweise von der Funktion transform() zu verstehen:
 
 ```cpp
+#include <iostream>
+#include <algorithm>
+using namespace std;
+int square(int x) {
+   //define square function
+   return x*x;
+}
+int main() {
+   int arr[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+   int res[10];
+   transform(arr, arr+10, res, square);
+   for(int i = 0; i<10; i++) {
+      cout << res[i] << "\n";   }
+}
 
 ```
 
 ### 6-5
-Test
+Function Objects (Functors)   / “Function Operators ()” 
+
+Das untenstehende Programm benutzt transform() in STL um die Elemente des Arrays um eine Zahl zu erhöhen:
+
+Ausgabe: 2 3 4 5 6
 
 ```cpp
+#include <iostream>
+#include<algorithm>
+using namespace std;
+
+//Functor 
+class increment
+{
+private:
+	int num;
+public:
+	increment(int n) : num(n) {  }
+
+	// This operator overloading enables calling 
+	// operator function () on objects of increment 
+	// code here
+    int operator() (int n){
+        return num+n;
+    }
+};
+
+int main()
+{
+	int arr[] = { 1, 2, 3, 4, 5 };
+	int n = sizeof(arr) / sizeof(arr[0]);
+	int to_add = 5;
+
+	transform(arr, arr + n, arr, increment(to_add));
+
+	for (int i = 0; i < n; i++)
+		cout << arr[i] << " ";
+
+	system("pause");
+	return 0;
+
+}
 
 ```
 
 ### 6-6
-Test
+for_each()-Funktion in STL
+Ändern Sie im untenstehenden Code, den struct auf die Class um. Lassen Sie das Programm danach laufen, um die Funktionsweise von for_each Funktion in STL zu verstehen.
 
 ```cpp
+#include <iostream>     // std::cout
+#include <algorithm>    // std::for_each
+#include <vector>       // std::vector
+
+void myfunction(int i) {  // function:
+	std::cout << ' ' << i;
+}
+
+struct myclass {           // function object type:
+	void operator() (int i) { std::cout << ' ' << i; }
+} myobject;
+
+int main() {
+	std::vector<int> myvector;
+	myvector.push_back(10);
+	myvector.push_back(20);
+	myvector.push_back(30);
+
+	std::cout << "myvector contains:";
+	for_each(myvector.begin(), myvector.end(), myfunction);
+	std::cout << '\n';
+
+	// or:
+	std::cout << "myvector contains:";
+	for_each(myvector.begin(), myvector.end(), myobject);
+	std::cout << '\n';
+
+	return 0;
+}
 
 ```
 
 ### 6-7
-Test
+Schreiben Sie a) einen Funktor b) einen Lambda Ausdruck um die Funktion printnumber zu ersetzen:
 
 ```cpp
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std; 
+// Function printnumber can be replaced by a functor or a lambda expression
+// void printnumber(int y) {
+//     cout << y << endl;
+// } 
+class printnumber{
+public:
+    void operator() (int n){cout << n << endl;}
+} printnumber;
+
+int main(){
+    // auto printnumber = [](int y){cout << y << endl;};
+    vector<int> numbers {1, 2, 3, 4, 5, 10, 15, 20, 25, 35, 45, 50};
+    for_each(numbers.begin(), numbers.end(), printnumber);
+}
 
 ```
 
 ### 6-8
-Test
+Lambda Funktion
+schreiben Sie einen Lambda - Ausdruck, um die benutzerdefinierte Prädikat Funktion is_greater_than_5 zu ersetzen:
 
 ```cpp
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std; 
+//user defined predicate function
+bool is_greater_than_5(int value){
+    return (value > 5);
+} 
+int main(){
+    auto is_greater_than_5 = [](int value){return (value > 5);};
+    vector<int> numbers { 1, 2, 3, 4, 5, 10, 15, 20, 25, 35, 45, 50 };
+    auto greater_than_5_count = count_if(numbers.begin(), numbers.end(), is_greater_than_5); 
+
+//code hier für die Lambda Funktion is_greater_than_5
+
+    cout << "The number of elements greater than 5 is: "
+        << greater_than_5_count << "." << endl;
+}
 
 ```
 
 ### 6-9
-Test
+unique_ptr
+
+Lassen Sie den folgenden Code laufen und betrachten Sie die folgenden Mechanismen: 
+
+1.	unique-ptr erstellen, ersetzen Sie den code mit make_unique Funktion 
+2.	überprüfen, ob unique_ptr «leer» ist
+3.	reseten der unique_ptr
+4.	«Eigentumsrechte» von unique_ptr transferieren
+5.	Unique_ptr ist ausserhalb des Geltungsbereiches (Scope) und wird automatisch vernichtet (braucht keinen delete wie der «raw» pointer)
+6.	release vom Eigentum des raw-pointers
+7.	delete raw pointer
 
 ```cpp
+#include <memory>  //contains unique_ptr
+#include <iostream>
+using namespace std;
+
+struct Task
+{
+	int mId;
+	Task(int id) :mId(id)
+	{
+		cout << "Task::Constructor" << endl;
+	}
+	~Task()
+	{
+		cout << "Task::Destructor" << endl;
+	}
+};
+
+int main()
+{
+	// Empty unique_ptr object
+	unique_ptr<int> ptr1;
+
+	// Check if unique pointer object is empty
+	if (!ptr1)  
+		cout << "ptr1 is empty" << endl;
+
+	// Check if unique pointer object is empty
+	if (ptr1 == nullptr) //if (!ptr)
+		cout << "ptr1 is empty" << endl;
+
+	// can not create unique_ptr object by initializing through assignment
+	// unique_ptr<Task> taskPtr2 = new Task(); // Compile Error
+
+	// 1: Create a unique_ptr object through raw pointer
+	// unique_ptr<Task> taskPtr(new Task(23);
+	auto taskPtr = make_unique<Task>(23);
+
+	// 2. Check if taskPtr is empty or it has an associated raw pointer
+	if (taskPtr != nullptr) //if(taskPtr)
+		cout << "taskPtr is not empty" << endl;
+
+	//Access the element through unique_ptr
+	cout << taskPtr->mId << endl;
+
+	cout << "Reset the taskPtr" << endl;
+	// 3. Reseting the unique_ptr will delete the associated
+	// raw pointer and make unique_ptr object empty
+	taskPtr.reset();
+
+	// Check if taskPtr is empty or it has an associated raw pointer
+	if (taskPtr == nullptr) //if (!taskPtr)
+		cout << "taskPtr is empty" << endl;
+
+
+	// Create a unique_ptr object through raw pointer
+	unique_ptr<Task> taskPtr2(new Task(55));
+
+	if (taskPtr2 != nullptr) //if(taskPtr2)
+		cout << "taskPtr2 is  not empty" << endl;
+
+	// unique_ptr object is Not copyable
+	//taskPtr = taskPtr2; //compile error
+
+	// unique_ptr object is Not copyable
+	//unique_ptr<Task> taskPtr3 = taskPtr2;
+
+	{
+		// Transfer the ownership
+
+		unique_ptr<Task> taskPtr4 = move(taskPtr2);
+
+
+		if (taskPtr2 == nullptr)
+			cout << "taskPtr2 is  empty" << endl;
+
+		// 4. ownership of taskPtr2 is transfered to taskPtr4
+		if (taskPtr4 != nullptr)
+			cout << "taskPtr4 is not empty" << endl;
+
+		cout << taskPtr4->mId << endl;
+
+		//5. taskPtr4 goes out of scope and deletes the assocaited raw pointer
+	}
+
+	// Create a unique_ptr object through raw pointer
+	unique_ptr<Task> taskPtr5(new Task(55));
+
+	if (taskPtr5 != nullptr)
+		cout << "taskPtr5 is not empty" << std::endl;
+
+	// 6. Release the ownership of object from raw pointer
+	Task * ptr = taskPtr5.release();
+
+	if (taskPtr5 == nullptr)
+		cout << "taskPtr5 is empty" << endl;
+
+	cout << ptr->mId << endl;
+
+       //7. after release ownership of raw pointer, delete of raw pointer is needed 
+	delete ptr;
+	
+
+	return 0;
+}
 
 ```
 
 ### 6-10
-Test
+shared_pointer
+
+Lassen Sie den folgenden Code laufen und betrachten Sie die folgenden Mechanismen: 
+
+1.	shared-ptr erstellen, benutzen Sie make_shared Funktion
+2.	reference Zahl angeben mit use_count()
+3.	Kopieren des shared_ptr
+4.	reference Zahl angeben mit use_count()
+5.	shared_ptr vergleichen
+6.	reseten des shared_ptr
+7.	de-attach des shared_ptr
 
 ```cpp
+#include  <memory> // We need to include this for shared_ptr
+#include <iostream>
+using namespace std;
 
-```
+int main()
+{
+	// 1. Creating a shared_ptr through make_shared
+	auto p1 = make_shared<int>(78);
+// shared_ptr<int> p1(new int);
+// 	*p1 = 78;
+	cout << "p1 = " << *p1 << endl;  //p1=78
 
-### 6-11
-Test
+	// 2. Shows the reference count
+cout << "p1 Reference count = " << p1.use_count() << endl; //p1 reference count=1
 
-```cpp
+	// 3. Second shared_ptr object will also point to same pointer internally
+	// It will make the reference count to 2.
+	shared_ptr<int> p2(p1);
 
-```
+	// 4. Shows the reference count
+cout << "p2 Reference count = " << p2.use_count() << endl; //p2 reference count=2
+cout << "p1 Reference count = " << p1.use_count() << endl; //p1 reference count=1 
 
-### 6-12
-Test
+	// 5. Comparing smart pointers
+	if (p1 == p2)
+	{
+		cout << "p1 and p2 are pointing to same pointer\n";
+	}
 
-```cpp
+	cout << "Reset p1 " << endl;
+
+	p1.reset();
+
+// 6. Reset the shared_ptr, in this case it will not point to any Pointer internally, hence its reference count will become 0.
+
+	cout << "p1 Reference Count = " << p1.use_count() << endl;
+
+	// Reset the shared_ptr, in this case it will point to a new Pointer internally
+	// hence its reference count will become 1.
+
+	p1.reset(new int(11));
+
+	cout << "p1  Reference Count = " << p1.use_count() << endl;
+
+// 7. Assigning nullptr will de-attach the associated pointer and make it to //point null
+	p1 = nullptr;
+
+	cout << "p1  Reference Count = " << p1.use_count() << endl;
+
+	if (!p1) //if (ptr == NULL)
+	{
+		cout << "p1 is NULL" << endl;
+	}
+	
+	return 99;
+}
 
 ```
 
 ## PVA 7
 
-### 7-1
-Test
+### 7-5a
+Friend Funktion
+Vervollständigen Sie den folgenden Code:
 
 ```cpp
+#include <iostream>
+
+using namespace std;
+class Box {
+   double width;   
+   public:
+      double length;
+      friend void printWidth( Box box );
+      void setWidth( double wid );
+};
+
+// Note: printWidth() is not a member function of any class.
+void printWidth( Box box ) {
+   /* Because printWidth() is a friend of Box, it can
+   directly access any member of this class */
+   cout << "Width of box : " << box.width <<endl;
+}
+
+void Box::setWidth(double wid){
+    width=wid;
+}
+
+// Main function for the program
+int main() {
+   Box box; 
+   // code here: set box width without member function
+   box.setWidth(10);
+   // code here: Use friend function to print the width.
+   printWidth(box);
+   
+   return 0;
+}
 
 ```
 
-### 7-2
-Test
+### 7-5b
+overloading istream & ostream using friend function
+Analysieren Sie den folgenden Code:
 
 ```cpp
+#include <iostream>
+using namespace std;
 
-```
+class Complex
+{
+private:
+	int real, imag;
+public:
+	Complex(int r = 0, int i = 0)
+	{
+		real = r;   imag = i;
+	}
+	friend ostream & operator << (ostream &out, const Complex &c);
+	friend istream & operator >> (istream &in, Complex &c);
+};
 
-### 7-3
-Test
+ostream & operator << (ostream &out, const Complex &c)
+{
+	out << c.real;
+	out << "+i" << c.imag << endl;
+	return out;
+}
 
-```cpp
+istream & operator >> (istream &in, Complex &c)
+{
+	cout << "Enter Real Part ";
+	in >> c.real;
+	cout << "Enter Imagenory Part ";
+	in >> c.imag;
+	return in;
+}
 
-```
-
-### 7-4
-Test
-
-```cpp
-
-```
-
-### 7-5
-Test
-
-```cpp
+int main()
+{
+	Complex c1;
+	cin >> c1;
+	cout << "The complex object is ";
+	cout << c1;
+	system("pause");
+	return 0;
+}
 
 ```
 
 ### 7-6
-Test
+unique_ptr: get vs. release
+Analysieren Sie das folgende Programm und ergänzen Sie den code, wie unten verlangt
 
 ```cpp
+#include <fstream> 
+#include <iostream>   
+using namespace std; 
+int main (int argc, char** argv) { 
+    // Open a new file for input/output operations,  
+    // discarding any current in the file (assumes a length of zero on opening) 
+    fstream myFile("test.txt", ios::in | ios::out | ios::trunc); 
+    // Add the characters "Hello World" to the file 
+    if (!myFile.is_open()){
+        return -1;
+    }
+    
+    //code here
+    myFile << "Hello World";
+    // Seek to 6 characters from the beginning of the file 
+    myFile.seekp(6, ios::beg);
+   // Read the next 5 characters from the file into a buffer 
+   char A[6];
+   myFile.read(A, 5);
+    
+   // End the buffer with a null terminating character 
+    A[5] = 0; 
+  // Output the contents read from the file and close it  
+    cout << A << endl;   //correct the code error here!
+    myFile.close(); 
+}
 
 ```
 
 ### 7-7
-Test
+unique Pointer
+
+Ersetzen Sie, wenn nötig, im folgenden Code den “Raw-Pointer” mit dem unique_ptr :
 
 ```cpp
+#include <iostream>
+#include <memory>
+using namespace std;
+
+class Fraction
+{
+private:
+	int m_numerator{ 0 };
+	int m_denominator{ 1 };
+
+public:
+	Fraction(int numerator = 0, int denominator = 1) :
+		m_numerator{ numerator }, m_denominator{ denominator }
+	{
+	}
+
+	friend ostream& operator<<(ostream& out, const Fraction &f1)
+	{
+		out << f1.m_numerator << "/" << f1.m_denominator;
+		return out;
+	}
+};
+
+void printFraction(const Fraction* const ptr)
+{
+	if (ptr)
+		std::cout << *ptr << '\n';
+}
+
+int main()
+{
+    auto ptr = std::make_unique<Fraction>(3,5);
+	// Fraction *ptr{ new Fraction{ 3, 5 } };
+
+	printFraction(ptr.get());
+
+	return 0;
+}
 
 ```
 
 ### 7-8
-Test
+unique_ptr
+Ergänzen Sie den folgenden Code, um die untenstehende Ausgabe zu erhalten:
 
 ```cpp
+#include <iostream>
+#include <memory> // for std::shared_ptr
+using namespace std;
+
+class Resource
+{
+public:
+	Resource() { cout << "Resource acquired\n"; }
+	~Resource() { cout << "Resource destroyed\n"; }
+};
+
+int main()
+{
+	// allocate a Resource object and have it owned by std::shared_ptr
+	Resource *res = new Resource;
+	shared_ptr<Resource> ptr1 = make_shared<Resource>();
+    {
+        shared_ptr<Resource> ptr2(res); // use copy initialization to make  another std::shared_ptr pointing to the same thing
+
+        cout << "Killing one shared pointer\n";
+        // ptr2 goes out of scope here, but nothing happens
+    }
+	cout << "Killing another shared pointer\n";
+
+	return 0;
+} // ptr1 goes out of scope here, and the allocated Resource is destroyed
 
 ```
 
 ### 7-9
-Test
+Shared Pointer
+Was ist die Ausgabe des folgenden Programmes? Analysieren Sie das Programm:
 
 ```cpp
+#include <iostream>
+#include <memory> // for std::shared_ptr
+#include <string>
+using namespace std;
 
-```
+class Person
+{
+	string m_name;
+	std::weak_ptr<Person> m_partner; // initially created empty
 
-### 7-10
-Test
+public:
 
-```cpp
+	Person(const string &name) : m_name(name)
+	{
+		cout << m_name << " created\n";
+	}
+	~Person()
+	{
+		cout << m_name << " destroyed\n";
+	}
 
-```
+	friend bool partnerUp(std::shared_ptr<Person> &p1, shared_ptr<Person> &p2)
+	{
+		if (!p1 || !p2)
+			return false;
 
-### 7-11
-Test
+		p1->m_partner = p2;
+		p2->m_partner = p1;
 
-```cpp
+		cout << p1->m_name << " is now partnered with " << p2->m_name << "\n";
 
-```
+		return true;
+	}
+};
 
-### 7-12
-Test
+int main()
+{
+	auto lucy = make_shared<Person>("Lucy"); // create a Person named "Lucy"
+	auto ricky = make_shared<Person>("Ricky"); // create a Person named "Ricky"
 
-```cpp
+	partnerUp(lucy, ricky); // Make "Lucy" point to "Ricky" and vice-versa
+
+	return 0;
+}
 
 ```
 
 ## PVA 8
 
-### 8-1
-Test
+### 8-2
+write the code to generate the following 2-dimensiona array and display the array on the screen
+
+| 1 | 2  | 3  | 4  |
+|---|----|----|----|
+| 5 | 6  | 7  | 8  |
+| 9 | 10 | 11 | 12 |
 
 ```cpp
+#include <iostream>
+
+using namespace std;
+
+const int ROWS = 3;
+const int COLUMNS = 4;
+
+int main(int argc, char const *argv[])
+{
+    int a[ROWS][COLUMNS];
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLUMNS; j++)
+        {
+            a[i][j] = (i * 4) + j + 1;
+            cout << a[i][j] << " ";
+        }
+        cout << endl;
+    }
+    return 0;
+}
 
 ```
 
 ### 8-2
-Test
+Arrays
+Write a program that accepts lines of text entered at the keyboard and redisplays them after a blank line is entered.
 
 ```cpp
+#include <iostream>
+#include <string>
+#include <cstdio>
 
-```
+using namespace std;
 
-### 8-3
-Test
+string first_string[4];
 
-```cpp
+int main(int argc, char const *argv[])
+{
+    int i = 0;
+    while (cin && i < 4)
+    {
+        getline(cin, first_string[i]);
+        cout << first_string[i] << endl;
+        i++;
+    };
+    return 0;
+}
 
 ```
 
 ### 8-4
-Test
+vector als sequentieller Container 
+Vervollständigen Sie den Code, um die untenstehende Ausgabe zu erhalten:
+
+Ausgabe: 
+
+Size : 5
+Capacity : 8   (Achtung: dieser Wert kann variieren, ist auf jeden Fall grösser als 5) 
+Max_Size : 4611686018427387903   (Achtung: dieser Wert kann auch variieren)
+Size : 4
+Vector is not empty
+Vector elements are: 1 2 3 4
+
 
 ```cpp
+#include <iostream>
+#include <vector>
 
-```
+using namespace std;
 
-### 8-5
-Test
+int main()
+{
+    vector<int> g1;
 
-```cpp
+    for (int i = 1; i <= 5; i++)
+        g1.push_back(i);
+
+    cout << "Size : " << g1.size();           // code here
+    cout << "\nCapacity : " << g1.capacity(); // code here
+    cout << "\nMax_Size : " << g1.max_size(); // code here
+
+    // resizes the vector size to 4
+    g1.resize(4);
+
+    // prints the vector size after resize()
+    cout << "\nSize : " << g1.size(); // code here
+
+    // checks if the vector is empty or not
+    // code here
+    if (!g1.empty())
+        cout << "\nVector is not empty";
+    else
+        cout << "\nVector is empty";
+
+    // Shrinks the vector
+    // code here
+    g1.shrink_to_fit();
+    cout << "\nVector elements are: ";
+    for (auto it = g1.begin(); it != g1.end(); it++)
+        cout << *it << " ";
+
+    return 0;
+}
 
 ```
 
 ### 8-6
-Test
+deque als sequentieller Container 
+Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten:
+
+Ausgabe:
+
+The deque dequEx is :     15    20    10    30
+dequEx.size() : 4
+dequEx.max_size() : 4611686018427387903 (Achtung: diese Grösse kann variieren)
+dequEx.at(2) : 10
+dequEx.front() : 15
+dequEx.back() : 30
+dequEx.pop_front() :     20    10    30
+dequEx.pop_back() :     20    10
 
 ```cpp
+#include <iostream>
+#include <deque>
+
+using namespace std;
+
+void print_dequ(deque<int> g)
+{
+    deque<int>::iterator it;
+    for (it = g.begin(); it != g.end(); ++it)
+        cout << '\t' << *it;
+    cout << '\n';
+}
+
+int main()
+{
+    deque<int> dequEx;
+    dequEx.push_back(10);
+    dequEx.push_front(20);
+    dequEx.push_back(30);
+    dequEx.push_front(15);
+    cout << "The deque dequEx is : ";
+    print_dequ(dequEx);
+
+    cout << "\ndequEx.size() : " << dequEx.size();         // code here
+    cout << "\ndequEx.max_size() : " << dequEx.max_size(); // code here
+
+    cout << "\ndequEx.at(2) : " << dequEx.at(2);     // code here
+    cout << "\ndequEx.front() : " << dequEx.front(); // code here
+    cout << "\ndequEx.back() : " << dequEx.back();   // code here
+
+    cout << "\ndequEx.pop_front() : ";
+    // code here
+    dequEx.pop_front();
+    print_dequ(dequEx);
+
+    cout << "\ndequEx.pop_back() : ";
+    // code here
+    dequEx.pop_back();
+    print_dequ(dequEx);
+
+    return 0;
+}
 
 ```
 
 ### 8-7
-Test
+pair als utility Container 
+Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten:
+
+
+Ausgabe:
+
+The price of lightbulbs is $0.99
+The price of shoes is $39.9
+The price of tomatoes is $2.3
 
 ```cpp
+#include <utility>  // std::pair, std::make_pair
+#include <string>   // std::string
+#include <iostream> // std::cout
+
+void printPair(std::pair<std::string, double> p)
+{
+    std::cout << "The price of " << p.first << " is " << p.second << std::endl;
+}
+
+int main()
+{
+    std::pair<std::string, double> product1;                   // default constructor
+    std::pair<std::string, double> product2("tomatoes", 2.30); // init constructor
+    std::pair<std::string, double> product3(product2);         // copy constructor
+
+    product1 = std::make_pair(std::string("lightbulbs"), 0.99);
+    // using make_pair (move)
+
+    product2.first = "shoes"; // the type of first is string
+    product2.second = 39.90;  // the type of second is double
+
+    // code here
+    printPair(product1);
+    printPair(product2);
+    printPair(product3);
+
+    return 0;
+}
 
 ```
 
 ### 8-8
-Test
+set als assoziativer Container:
+a)	Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten
+b)	Was müsste man im header des programmes hinzufügen um diesen Hinweis nicht zu erhalten? : 	«no operator "<<" matches these operands	
+
+Ausgabe:
+
+ A 1
+ B 2
+ C 3
+ D 4
+ E 5
 
 ```cpp
+#include <set>
+#include <utility>
+#include <iostream>
+using namespace std;
+
+void printPair(string first, int second)
+{
+    cout << first << " " << second << endl;
+}
+
+int main()
+{
+
+    set<pair<string, int>> mySet;
+    // insert values
+    mySet.insert(make_pair<string, int>("A", 1));
+    mySet.insert(make_pair<string, int>("B", 2));
+    mySet.insert(make_pair<string, int>("C", 3));
+    mySet.insert(make_pair<string, int>("D", 4));
+    mySet.insert(make_pair<string, int>("E", 5));
+
+    for (auto it = mySet.begin(); it != mySet.end(); ++it)
+    {
+        // x is the first, y is the second element
+        // code here
+        printPair(it->first, it->second);
+    }
+    // alternative way to iterate set
+    /*
+    for (auto const &p : mySet) {
+        //code here
+    }*/
+
+    return 0;
+}
 
 ```
 
 ### 8-9
-Test
+multiset als assoziativer Container:
+Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten
 
 ```cpp
+#include <iostream>
+#include <set>
+using namespace std;
+int main()
+{
+    multiset<int, less<int>> ms;
+    ms.insert(10);                                // insert 10
+    ms.insert(35);                                // insert 35
+    ms.insert(10);                                // insert 10 again (allowed)
+    cout << "There are " << ms.count(10) << endl; // returns the number of entries of 10
+    multiset<int, less<int>>::iterator it;        // creates an iterator
+    it = ms.find(10);
+    // code here
+    if (it != ms.end())
+    {
+        cout << "10 was found" << endl;
+    }
+
+    return 0;
+}
 
 ```
 
 ### 8-10
-Test
+multiset
+
+Vervollständigen Sie den folgenden Code:
 
 ```cpp
+#include <iostream>
+#include <set>
+#include <string>
+#include <cstdlib>
+
+using namespace std;
+
+int main()
+{
+    multiset<int> ms;
+    multiset<int>::iterator it, it1, msIt; // define iterator
+    int choice, item;
+
+    while (1)
+    {
+        cout << "\n---------------------" << endl;
+        cout << "Multiset Example" << endl;
+        cout << "\n---------------------" << endl;
+        cout << "1.Insert Number into the Multiset" << endl;
+        cout << "2.Delete Element from the Multiset" << endl;
+        cout << "3.Find Element in a Multiset" << endl;
+        cout << "4.Count Elements with a specific key" << endl;
+        cout << "5.Size of the Multiset" << endl;
+        cout << "6.Display Multiset" << endl;
+        cout << "7.First Element of the Multiset" << endl;
+        cout << "8.Exit" << endl;
+        cout << "Enter your Choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            cout << "Enter value to be inserted: ";
+            cin >> item;
+            ms.insert(item);
+            break;
+        case 2:
+            cout << "Enter value to be deleted: ";
+            ms.erase(item);
+            break;
+        case 3:
+            cout << "Enter element to find ";
+            cin >> item;
+            ms.find(item);
+            if (it != ms.end())
+            {
+                cout << item << " was found" << endl;
+            }
+            break;
+        case 4:
+            cout << "Enter element to be counted: ";
+            cin >> item;
+            cout << "Number of elements are: " << ms.count(item) << endl;
+            break;
+        case 5:
+            cout << "Size of the Multiset: " << ms.size() << endl;
+            break;
+        case 6:
+            cout << "Elements of the Multiset:  ";
+            for (auto &&i : ms)
+            {
+                cout << i << " ";
+            }
+            cout << endl;
+            break;
+        case 7:
+            if (ms.empty())
+            {
+                cout << "Multiset is empty";
+            }
+            else
+            {
+                msIt = ms.begin();
+                cout << "The First Element of the Multiset is " << *msIt << endl;
+            }
+            break;
+        case 8:
+            exit(1);
+            break;
+        default:
+            cout << "Wrong Choice" << endl;
+        }
+    }
+
+    return 0;
+}
 
 ```
 
 ### 8-11
-Test
+map als assoziativer Container:
+Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten
+
+Ausgabe:
+
+KEY    ELEMENT
+1   	 40
+2    	30
+3    	60
 
 ```cpp
+#include <map>
+#include <iostream>
+using namespace std;
 
-```
+int main()
+{
 
-### 8-12
-Test
+    // initialize container
+    map<int, int> mp;
 
-```cpp
+    // insert elements in random order
+    // code here
+    mp.insert({2, 30});
+    mp.insert({1, 40});
+
+    auto it = mp.find(2);
+
+    // inserts {3, 60} starting the search from
+    // position where 2 is present
+    mp.insert(it, {3, 60});
+
+    // prints the elements
+    cout << "KEY\tELEMENT\n";
+    // code here
+    for (auto &&i : mp)
+    {
+        cout << i.first << "\t" << i.second << endl;
+    }
+
+    return 0;
+}
 
 ```
 
 ## PVA 9
 
 ### 9-1
-Test
+unordered_map als assoziativer Container:
+Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten
+
+
+Ausgabe: 
+Found PI
+lambda not found
+All Elements : 
+loge 		 1
+e  		2.718
+log10 	 	2.302
+root3  		1.732
+PI  		3.14
+root2  		1.414
 
 ```cpp
+#include <iostream>
+#include <unordered_map>
+#include <string>
+using namespace std;
+int main()
+{ // Declaring unordMap to be of <string, double> type
+    // key will be of string type and mapped value will be of double type
+    unordered_map<string, double> unordMap;
+    // inserting values by using [] operator
+    unordMap["loge"] = 1;
+    unordMap["e"] = 2.718;
+    unordMap["log10"] = 2.302;
+    unordMap["root3"] = 1.732;
+    unordMap["PI"] = 3.14;
+    unordMap["root2"] = 1.414;
+    // code here
+    string key = "PI";
+    // If key not found in map iterator to end is returned
+    if (unordMap.find(key) == unordMap.end())
+        std::cout << key << " not found\n\n";
+    // If key found then iterator to that key is returned
+    else
+        std::cout << "Found " << key << "\n\n";
+    key = "lambda";
+    if (unordMap.find(key) == unordMap.end())
+        std::cout << key << " not found\n";
+    else
+        std::cout << "Found " << key << endl;
+    //    iterating over all value of unordMap
+    unordered_map<string, double>::iterator itr;
+    std::cout << "\nAll Elements : \n";
+    for (itr = unordMap.begin(); itr != unordMap.end(); itr++)
+    {
+        // code here
+        std::cout << itr->first << " " << itr->second << std::endl;
+    }
+}
 
 ```
 
 ### 9-2
-Test
+queue als Container Adapter:
+Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten
+
+Ausgabe:
+The queue myQueue is :     10    20    30
+myQueue.size() : 3
+myQueue.front() : 10
+myQueue.back() : 30
+myQueue.pop() :     20    30
 
 ```cpp
+#include <iostream>
+#include <queue>
+using namespace std;
+void printQueue(queue<int> myQ)
+{
+    queue<int> g = myQ;
+    while (!g.empty())
+    {
+        cout << '\t' << g.front();
+        g.pop();
+    }
+    cout << '\n';
+}
+int main()
+{
+    queue<int> myQueue;
+
+    myQueue.push(30);
+    myQueue.push(20);
+    myQueue.push(10);
+
+    cout << "The queue myQueue is : ";
+    printQueue(myQueue);
+
+    cout << myQueue.size() << endl;
+    cout << myQueue.front() << endl;
+    cout << myQueue.back() << endl;
+    cout << "\nmyQueue.pop() : ";
+    myQueue.pop();
+    printQueue(myQueue);
+    return 0;
+}
 
 ```
 
 ### 9-3
-Test
+priority-queue als Container Adapter
+Vervollständigen Sie den Code um die untenstehende Ausgabe zu erhalten
+
+Ausgabe:
+The priority queue myPrQueue is :       30      20      10      5       1
+myPrQueue.size() : 5
+myPrQueue.top() : 30
+myPrQueue.pop() :       20      10      5       1
 
 ```cpp
+#include <iostream>
+#include <queue>
+using namespace std;
+void printPrQueue(priority_queue<int> gq)
+{
+    priority_queue<int> g = gq;
+    while (!g.empty())
+    {
+        cout << '\t' << g.top();
+        g.pop();
+    }
+    cout << '\n';
+}
+int main()
+{
+    priority_queue<int> myPrQueue;
+    // code here
+    // highest value will always be first
+    myPrQueue.push(1);
+    myPrQueue.push(5);
+    myPrQueue.push(30);
+    myPrQueue.push(10);
+    myPrQueue.push(20);
+    cout << "The priority queue myPrQueue is : ";
+    printPrQueue(myPrQueue);
+    // code here
+
+    cout << myPrQueue.size() << endl;
+    cout << myPrQueue.top() << endl;
+    myPrQueue.pop();
+    printPrQueue(myPrQueue);
+    system("pause");
+    return 0;
+}
 
 ```
 
 ### 9-4
-Test
+Iterator
+Ergänzen Sie das folgende Programm:
 
 ```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main()
+{
+    vector<int> v = {1, 2, 3}; // Declaring a vector
+    vector<int>::iterator i;   // Declaring an iterator
+    int j;
+    for (i = v.begin(); i != v.end(); ++i)
+    {
+        // Inserting element using iterators
+        if (i == v.begin())
+        {
+            i = v.insert(i, 5); // inserting 5 at the beginning of v
+        }
+    }
+    for (i = v.begin(); i != v.end(); ++i)
+    {
+        if (i == v.begin() + 1)
+        { // Deleting a element using iterators
+            i = v.erase(i);
+            // i now points to the element after the   deleted element
+        }
+    }
+    // Accessing the elements using iterators
+    // code here$
+
+    for (auto &&i : v)
+    {
+        cout << i << endl;
+    }
+
+    // same as above
+    for (const auto &i : v)
+    {
+        cout << i << endl;
+    }
+
+    return 0;
+}
 
 ```
 
 ### 9-5
-Test
+Iterator 
+Ergänzen das untenstehende Programm, um die folgende Ausgabe zu erhalten:
+
+Ausgabe:
+
+Elements: 1 2 3 4 5
+Squares:  1 4 9 16 25
 
 ```cpp
+#include <iostream>
+#include <fstream>
+#include <iterator>
+#include <vector>
+using namespace std;
+
+template <typename ForwardIterator>
+
+void square(ForwardIterator first, ForwardIterator last)
+{
+    cout << "Squares:  ";
+    for (; first != last; first++)
+    {
+        *first = (*first) * (*first);
+        cout << *first << " ";
+    }
+    cout << endl;
+}
+
+int main()
+{
+    int arr[] = {1, 2, 3, 4, 5};
+    vector<int> v(arr, arr + sizeof(arr) / sizeof(arr[0]));
+    // code here
+    // use begin() , end() to display the output
+    cout << "Elements: ";
+    for (auto itr = v.begin(); itr != v.end(); itr++)
+    {
+        cout << *itr << " ";
+    }
+    cout << endl;
+    square(v.begin(), v.end());
+}
 
 ```
 
 ### 9-6
-Test
+Reverse Algorithm
+Ergänzen Sie das folgende Programm:
 
 ```cpp
+// reverse algorithm example
+#include <iostream>  // std::cout
+#include <algorithm> // std::reverse
+#include <vector>    // std::vector
+
+void printVector(std::vector<int> &v)
+{
+    for (auto &&i : v)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+}
+
+int main()
+{
+    std::vector<int> myvector;
+    // set some values:
+    for (int i = 1; i < 10; ++i)
+        myvector.push_back(i); // 1 2 3 4 5 6 7 8 9
+
+    printVector(myvector);
+
+    std::reverse(myvector.begin(), myvector.end()); // 9 8 7 6 5 4 3 2 1
+    // print out content:
+    // code here
+    printVector(myvector);
+
+    return 0;
+}
 
 ```
 
 ### 9-7
-Test
+Copy Algorithm 
+Ergänzen Sie das folgende Programm: 
 
 ```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void printVector(std::vector<int> &v)
+{
+    for (auto &&i : v)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+}
+
+int main(void)
+{
+    vector<int> v1 = {1, 2, 3, 4, 5};
+    vector<int> v2(5);
+    copy(v1.begin(), v1.end(), v2.begin());
+    // display vector 2
+    // code here
+    printVector(v2);
+
+    return 0;
+}
 
 ```
 
 ### 9-8
-Test
+Aufgabe 1: Ergänzen Sie das untenstehende Programm, um folgende Antworten zu erhalten:
+4 2 10 5 1 8 
+1 2 4 5 8 10
 
 ```cpp
+// 4 2 10 5 1 8
+// 1 2 4 5 8 10
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+void printVector(std::vector<int> &v)
+{
+    for (auto &&i : v)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+}
+
+int main()
+{
+    vector<int> v = {4, 2, 10, 5, 1, 8};
+    // code ergänzen
+
+    printVector(v);
+    sort(v.begin(), v.end());
+    printVector(v);
+
+    return 0;
+}
 
 ```
 
 ### 9-9
-Test
+Eränzen Sie das untenstehende Programm, um folgende Antworten zu erhalten:
+1 9 3 7 5
+6 4 8 2 10
 
 ```cpp
+// 1 9 3 7 5
+// 6 4 8 2 10
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+bool IsOdd(int i)
+{
+    return (i % 2) == 1;
+}
+
+int main()
+{
+    vector<int> v;
+
+    for (int i = 1; i <= 10; ++i)
+        v.push_back(i);
+
+    vector<int>::iterator bound;
+    // Variante 1
+    for (auto &&i : v)
+    {
+        if (IsOdd(i))
+        {
+            cout << i << " ";
+        }
+    }
+
+    cout << endl;
+
+    for (auto &&i : v)
+    {
+        if (!IsOdd(i))
+        {
+            cout << i << " ";
+        }
+    }
+
+    cout << endl;
+    // Variante 2
+    bound = partition(v.begin(), v.end(), IsOdd);
+
+    // code ergänzen
+    for (auto it = v.begin(); it != bound; ++it)
+        std::cout << *it << " ";
+    std::cout << endl;
+
+    for (auto it = bound; it != v.end(); ++it)
+        std::cout << *it << " ";
+    std::cout << endl;
+
+    return 0;
+}
 
 ```
 
 ### 9-10
-Test
+Ergänzen Sie den folgenden Code  
+a) mit einer Lambda-Funktion lamFunc  und 
+b) mit einem Functor, um die folgende Ausgabe zu erhalten:
+
+
+myvector contains: 10 20 30
+myvector contains: 10 20 30
 
 ```cpp
+// a) mit einer Lambda-Funktion lamFunc  und
+// b) mit einem Functor, um die folgende Ausgabe zu erhalten:
+
+// myvector contains: 10 20 30
+// myvector contains: 10 20 30
+
+#include <iostream>  // cout
+#include <algorithm> // for_each
+#include <vector>    // vector
+using namespace std;
+
+// a: Lambda Function : code ergänzen
+
+// b : Functor: code ergänzen
+
+void lamFunct(int i)
+{
+    std::cout << i << " ";
+}
+
+struct myclass
+{ // function object type:
+    void operator()(int i) { std::cout << i << " "; }
+} funcObj;
+
+int main()
+{
+    std::vector<int> myvector;
+    myvector.push_back(10);
+    myvector.push_back(20);
+    myvector.push_back(30);
+
+    std::cout << "my vector contains: " << endl;
+    for_each(myvector.begin(), myvector.end(), lamFunct); // lambda Funktion
+    std::cout << "\n";
+
+    // or:
+    std::cout << "my vector contains: " << endl;
+    for_each(myvector.begin(), myvector.end(), funcObj); // Funktor
+    std::cout << "\n";
+
+    return 0;
+}
+
+// -- -- -- -- --Ergänzung zum Function template for_each :
+
+// std::for_each
+
+// template <class InputIterator, class Function>
+
+//     Function
+//     for_each(InputIterator first, InputIterator last, Function fn);
+// Apply function to range
+// Applies function fn to each of the elements in the range [first,last).
+
+// The behavior of this template function is equivalent to:
+
+// template <class InputIterator, class Function>
+// Function for_each(InputIterator first, InputIterator last, Function fn)
+// {
+//     while (first != last)
+//     {
+//         fn(*first);
+//         ++first;
+//     }
+//     return fn; // or, since C++11: return move(fn);
+// }
+
+```
+## PVA 10
+
+### 10-1
+Dynamische Speicher-Verwaltung 
+
+Gegeben ist die folgende Klasse FiFo, welche einen Ringbuffer darstellt. Der Ringbuffer verfügt über eine vorgegebene Anzahl Plätze, welche bei der Instanziierung bestimmt wird.
+
+Aufgabe:
+Ergänzen Sie die Klasse mit
+•	einem Copy-Constructor
+•	einer Methode resize(int size), bei der resize()-Methode müssen die Werte nicht übernommen werden
+
+```cpp
+#include <iostream>
+class FiFo
+{
+public:
+    FiFo(int size) : size(size) { buf = new double[size]; }
+    FiFo(const FiFo &org); /* ToDo */
+    ~FiFo() { delete[] buf; }
+    void put(double value);
+    double get();
+    void resize(int size); /* ToDo */
+
+private:
+    void copyBuf(double *a, double *b, int size);
+    double *buf = nullptr;
+    int size;
+    int write = 0;
+    int read = 0;
+    bool empty = true;
+};
+FiFo::FiFo(const FiFo &org)
+{
+    this->size = org.size;
+    this->write = org.write;
+    this->read = org.read;
+    this->empty = org.empty;
+
+    this->buf = new double[this->size];
+    copyBuf(this->buf, org.buf, this->size);
+}
+
+void FiFo::resize(int size)
+{
+    double *tmp = this->buf;
+    this->buf = new double[size];
+    this->read = 0;
+    this->write = 0;
+    this->empty = true;
+    this->size = size;
+    delete[] tmp;
+}
+
+void FiFo::copyBuf(double *a, double *b, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        a[i] = b[i];
+    }
+}
+
+void FiFo::put(double value)
+{
+    buf[write] = value;
+    if (write == read && !empty)
+    {
+        write = (write + 1) % size;
+        read = write;
+        // overflow
+        std::cout << "overflow" << std::endl;
+    }
+    else
+    {
+        write = (write + 1) % size;
+    }
+    empty = false;
+}
+
+double FiFo::get()
+{
+    double result = 0.0;
+
+    if (!empty)
+    {
+        result = buf[read];
+        read = (read + 1) % size;
+        if (read == write)
+        {
+            empty = true;
+        }
+    }
+    else
+    {
+        // underflow
+        std::cout << "underflow" << std::endl;
+    }
+    return result;
+}
+
+int main()
+{
+    FiFo f(5);
+    f.put(3.14159);
+    f.put(12.3456);
+    std::cout << f.get() << std::endl;
+    std::cout << "" << std::endl;
+
+    FiFo f2(f);
+    f2.put(2.78);
+    std::cout << f2.get() << std::endl;
+    std::cout << "" << std::endl;
+
+    f.resize(10);
+    f.put(11.111);
+    std::cout << f.get() << std::endl;
+
+    return 0;
+}
 
 ```
 
-### 9-11
-Test
+### 10-2
+Funktionsparameter 
+Können die folgenden Programme gebildet werden?
+•	Wenn nicht, warum?
+•	Wenn ja, was wird ausgegeben?
+
 
 ```cpp
+#include <iostream>
+
+// wrong with default value
+// void swap(int& a = 0, int& b = 0) {
+void swap(int &a, int &b)
+{
+    int h = a;
+    a = b;
+    b = h;
+}
+
+int main()
+{
+    int x = 5;
+    int y = 6;
+
+    swap(x, y);
+
+    std::cout << "x = " << x << ", y =" << y << std::endl;
+    return 0;
+}
 
 ```
 
-### 9-12
-Test
+### 10-3
+class template
 
 ```cpp
+
+template <typename T>
+
+class Calculator
+{
+private:
+    /* data */
+    T num1;
+    T num2;
+
+public:
+    Calculator(T n1, T n2)
+    {
+        num1 = n1;
+        num2 = n2;
+    };
+
+    T add() { return num1 + num2; };
+    T subtract() { return num1 - num2; };
+    T multiply() { return num1 * num2; };
+    T divide() { return num1 / num2; };
+
+    void displayResult()
+    {
+        cout << "Numbers are: " << num1 << " and " << num2 << "." << endl;
+        cout << "Addition is: " << add() << endl;
+        cout << "Subtraction is: " << subtract() << endl;
+        cout << "Product is: " << multiply() << endl;
+        cout << "Division is: " << divide() << endl;
+    };
+};
+
+```
+
+### 10-4
+list
+
+```cpp
+// main.cpp
+#include <iostream>
+#include "NameList.h"
+using namespace std;
+
+int main()
+{
+    NameList aList;
+    NameList bList = {"Andrei", "Scott", "Bjarne", "Herb"};
+    aList.add("Armstrong");
+    aList.add("Aldrin");
+    aList.add("Collins");
+    cout << "aList = " << endl;
+    aList.print();
+    cout << endl;
+    cout << "\nbList = " << endl;
+    bList.print();
+    cout << endl;
+    return 0;
+}
+
+// NameList.h
+#pragma once
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class NameList
+{
+public:
+    /* ToDo Constructors */
+    NameList(){};
+    NameList(vector<string> in) { names = in; };
+    /* ToDo print()-Methode*/
+    void print()
+    {
+        for (auto name : names)
+        {
+            std::cout << name << std::endl;
+        }
+    };
+    /* ToDo add(.....)-Methode*/
+    void add(string name) { names.push_back(name); };
+    /* 1 Punkt     1 Punkt  */
+private:
+    vector<string> names;
+};
+
+```
+
+### 10-5
+std::map
+
+```cpp
+#include <iostream>
+#include <map>
+#include <string>
+using namespace std;
+
+string digitToText(int digit)
+{
+    std::map<int, string> txt{{1, "Eins"}, {2, "Zwei"}, {3, "Drei"}, {4, "Vier"}, {5, "Fünf"}, {6, "Sechs"}, {7, "Sieben"}, {8, "Acht"}, {9, "Neun"}};
+    // txt[1];
+    string result = "unbekannt";
+    if ((digit >= 0) && (digit <= 9))
+    {
+        return txt[digit];
+    }
+    return result;
+}
+
+int main()
+{
+    for (int i = -1; i < 11; i++)
+    {
+        cout << digitToText(i) << endl;
+    }
+    return 0;
+}
+```
+
+### 10-6
+cast operator
+
+```cpp
+class Fraction
+{
+    int a;
+    int b;
+
+public:
+    Fraction(int first, int second)
+    {
+        a = first;
+        b = second;
+    };
+
+    operator float() { return (float)a / (float)b; };
+};
+
+int main(int argc, char const *argv[])
+{
+    Fraction a(1, 2);
+    (float)a;
+    return 0;
+}
+
+```
+
+### 10-7
+shared pointer
+
+```cpp
+// main.cpp
+#include <iostream>
+#include <list>
+#include "ProgParam.h"
+#include <memory>
+#include <string>
+using namespace std;
+
+list<shared_ptr<ProgParam>> eingabe(int argc, char *argv[])
+{
+    list<shared_ptr<ProgParam>> params;
+    for (int i = 0; i < argc - 1; i++)
+        params.push_back(make_shared<ProgParam>((argv[i + 1])));
+    return params;
+}
+
+void ausgabe(list<shared_ptr<ProgParam>> params)
+{
+    for (auto x : params)
+        cout << x->getParam() << endl;
+}
+int main(int argc, char *argv[])
+{
+    list<shared_ptr<ProgParam>> params = eingabe(argc, argv);
+    ausgabe(params);
+    return 0;
+}
+
+// ProgParam.h
+#pragma once
+#include <string>
+using namespace std;
+class ProgParam
+{
+public:
+    ProgParam() : param("leer") {}
+    ProgParam(const string &param) : param(param) {}
+    ~ProgParam() {}
+    string getParam() const { return param; }
+
+private:
+    string param;
+};
+```
+
+### 10-8
+vector swap
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+void exchange(vector<int> &vec)
+{
+    int size = vec.size();
+    int mid = vec.size() / 2;
+
+    for (int i = 0; i < mid; i++)
+    {
+        int tmp;
+        tmp = vec[i];
+        vec[i] = vec[mid + i];
+        vec[mid + i] = tmp;
+    }
+}
+
+int main(int argc, char const *argv[])
+{
+    vector<int> v = {1, 2, 3, 4, 5, 6, 7, 8};
+    exchange(v);
+    for (auto i : v)
+    {
+        cout << i << endl;
+    }
+    return 0;
+}
 
 ```
