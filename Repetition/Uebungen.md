@@ -712,6 +712,33 @@ void aufgabe_1_4() {
 }
 ```
 
+### P-1-5
+Pointer. Ergänzen Sie das folgende Programm:
+
+```cpp
+#include <iostream>
+using namespace std;
+
+int main() {
+	int  var = 20;   // actual variable declaration.
+	int  *ip;        // pointer variable 
+
+	ip = &var;       // store address of var in pointer variable
+
+	cout << "Value of var variable: ";
+	cout << var << endl;
+
+	// to Do: print the address stored in ip pointer variable
+	cout << ip << endl;
+
+	// to Do: access the value at the address available in pointer
+	cout << *ip << endl;
+
+	system("pause");
+	return 0;
+}
+```
+
 ### P-1-6
 Scope Resolution: Was gibt folgendes Programm aus? 
 
@@ -782,6 +809,161 @@ void aufgabe1_7(int size) {
 	std::cout << std::endl;
 }
 ```
+
+### P-1-9
+Functions: Vervollständigen Sie das folgende Programm:
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Function Signature
+double getIncome(string);
+double computeTaxes(double);
+void printTaxes(double);
+
+double computeTaxes(double income)
+{
+	if (income < 5000) return 0.0;
+	return 0.07*(income - 5000.0);
+}
+
+double getIncome(string prompt)
+{
+    double income;
+    std::cout << prompt << endl;
+	std::cin >> income;
+    return income;
+}
+
+void printTaxes(double taxes)
+{
+	std::cout << "Taxes: " << taxes << endl;
+}
+
+int main()
+{
+	// Get the income;
+	double income = getIncome("Please enter the employee income: ");
+
+	// Compute Taxes
+	double taxes = computeTaxes(income);
+
+	// Print employee taxes
+	printTaxes(taxes);
+	system("pause");
+}
+```
+
+### P-1-10
+Ergänzen Sie das Programm so, das Grossbuchstaben in Kleinbuchstaben umgewandelt werden und umgekehrt. Alle übrigen Zeichen bleiben unverändert.
+
+```cpp
+#include <iostream>
+#include <string>
+
+void swapLetters(std::string &letter) {
+    for (int i = 0; i < letter.length(); i++) {
+        if (isupper(letter[i])) {
+            letter[i] = tolower(letter[i]);
+        } else {
+            letter[i] = toupper(letter[i]);
+        }
+    }
+}
+
+int main(){
+    std::cout << "Aufgabe 1......... " << std::endl;
+    std::string line;
+    /* Eingabe */
+    std::cout << "Text = ";
+    getline(std::cin, line);
+    
+    /* Verarbeitung*/
+    swapLetters(line);
+
+   /* Ausgabe */
+   std::cout << line << std::endl;
+   std::cout << "...... 1. Aufgabe! " << std::endl;
+  return 0;
+
+}
+```
+
+### P-1-11
+Ergänzen Sie das folgende Programm mit der Methode push, pop und display
+
+```cpp
+#include <iostream>
+using namespace std;
+
+int stack[100], n = 100, top = -1;
+
+void push(int val) {
+	if (top+1 < n) {
+        top++;
+        stack[top] = val;
+    } else {
+        std::cout << "Stack is full" << std::endl;
+    }
+}
+
+void pop() {
+	stack[top] = 0;
+    top--;
+}
+
+void display() {
+    
+    std::cout << "stackpointer: " << top << "\n";
+    std::cout << "stacksize: " << n << "\n";
+	for (auto &&i : stack)
+    {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+    
+}
+
+int main() {
+	int ch, val;
+	cout << "1) Push in stack" << endl;
+	cout << "2) Pop from stack" << endl;
+	cout << "3) Display stack" << endl;
+	cout << "4) Exit" << endl;
+	do {
+		cout << "Enter choice: " << endl;
+		cin >> ch;
+		switch (ch) {
+		case 1: {
+			cout << "Enter value to be pushed:" << endl;
+			cin >> val;
+			push(val);
+			break;
+		}
+		case 2: {
+			pop();
+			break;
+		}
+		case 3: {
+			display();
+			break;
+		}
+		case 4: {
+			cout << "Exit" << endl;
+			break;
+		}
+		default: {
+			cout << "Invalid Choice" << endl;
+		}
+		}
+	} while (ch != 4);
+      //System("pause");
+	return 0;
+}
+```
+
 ## PVA 2
 
 ### 2-2
