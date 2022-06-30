@@ -1224,6 +1224,8 @@ bool istAlphanumerisch(const std::string& text)
 }
 ```
 
+## PVA 3
+
 ### 3-1
 Schreiben Sie eine Klasse Person, die nur die Attribute Name (Typ std::string) und
 Alter (Typ int) hat. Die Klasse soll die Methoden getName() und getAlter() zum Abfragen der Attribute enthalten. setName(const std::string& neuer Name) und setAlter(int
@@ -1301,20 +1303,161 @@ int main()
 }
 ```
 
-
-
+### 3-3
+Ergänzen Sie das untenstehende Programm, um diese Ausgabe zu erhalten:
+The new copied character array is : C++
+The 1st string before swapping is : C++ is for genius
+The 2nd string before swapping is : C++ rocks
+The 1st string after swapping is : C++ rocks
+The 2nd string after swapping is : C++ is for genius
 
 ```cpp
+#include <string>
+#include <iostream>
+using namespace std;
 
-
+int main() { 
+    // Initializing 1st string 
+    string str1 = "C++ is for genius";   
+    // Declaring 2nd string 
+    string str2 = "C++ rocks";   
+    // Declaring character array 
+    char ch[5];   
+    // using copy() to copy elements into char array 
+    // copies "C++" 
+    str1.copy(ch, 4);
+    // Diplaying char array 
+    cout << ch << endl;
+    // Displaying strings before swapping 
+    cout << str1 << "\n" << str2 << endl;
+    // using swap() to swap string content 
+    str1.swap(str2);
+    // Displaying strings after swapping 
+    cout << str1 << "\n" << str2 << endl;
+    return 0;   
+}
 ```
 
-
-
+### 3-4
+Pointer-to-Pointer  ergänzen Sie den untenstehenden Code:
 
 ```cpp
+#include <iostream>
 
+using namespace std;
 
+int main() {
+	int  var;
+	int  *ptr;
+	int  **pptr;
+
+	var = 3000;
+
+	// take the address of var
+	ptr = &var;
+
+	// take the address of ptr using address of operator &
+	pptr = &ptr;
+
+	// write out value of var, value available at *ptr, value available at **pptr
+    cout << var << "\n" << *ptr << "\n" << *pptr << endl;
+
+	
+	return 0;
+}
+```
+
+### 3-5
+Pointer-to-Function  ergänzen Sie den untenstehenden code:
+
+```cpp
+#include <iostream>
+using namespace std;
+
+int doppel(int);
+int dreifach(int);
+int vierfach(int);
+
+int main()
+{
+	int eingabe;
+	int var =0;
+	int (*zeiger) (int) = NULL; //Zeiger auf einer int Funktion
+	for (; ;) {  //Ereignisschleife, 
+      	//here you should enter the factor 2,3 or 4        
+        cout << "here you should enter the factor 2,3 or 4" << endl;                           
+        cin >> eingabe;
+		//use switch to choose factor 
+		switch (eingabe)
+        {
+        case 2:
+            zeiger = doppel;
+            break;
+        case 3:
+            zeiger = dreifach;
+            break;
+        case 4:
+            zeiger = vierfach;
+            break;
+        
+        default:
+            cout << "Entered wrong number" << endl;      
+            exit(-1);
+            break;
+        }
+
+        //here you enter the number you want to multiply with the //factor and display the result 
+        cout << "here you enter the number you want to multiply with the factor" << endl;
+        cin >> eingabe;
+        cout << "result:" << zeiger(eingabe) << endl;
+	 } //end for
+     
+    return 0;
+}
+
+ 
+int doppel(int  x){
+	 return (x * 2);
+}
+
+ int dreifach(int x) {
+	 return(x * 3);
+ }
+
+ int vierfach(int x) {
+	 return(x * 4);
+ }
+```
+
+### 3-6
+This-Pointer. Finden Sie den Fehler im untenstehenden Code:
+
+```cpp
+#include<iostream> 
+using namespace std;
+
+class Test1
+{
+private:
+	int x;
+public:
+	Test1(int x = 0) { 
+        this->x = x; //when we use the same name data member x
+    }
+	void change(Test1 *t) { this->x = t->x; } 
+	void print() { 
+cout << "x = " << x << endl; 
+}
+};
+
+int main()
+{
+	Test1 obj(5);
+	Test1 *ptr = new Test1(10);
+	obj.change(ptr);
+	obj.print();
+	return 0;
+} 
 ```
 
 
