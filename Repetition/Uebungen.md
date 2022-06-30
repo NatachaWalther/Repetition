@@ -2027,3 +2027,823 @@ int main() {
 
 ```
 
+## PVA 5
+
+### 5-1
+Operator-Überladung
+Vervollständigen Sie den folgenden Code:
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Box {
+public:
+    double getVolume(void) {
+        return length * breadth * height;
+    }
+    void setLength(double len) {
+        length = len;
+    }
+    void setBreadth(double bre) {
+        breadth = bre;
+    }
+    void setHeight(double hei) {
+        height = hei;
+    }
+
+    // operator + to add two Box objects.
+    Box operator+(const Box& b) {
+        //code here
+        Box out;
+        out.setLength(this->length + b.length);
+        out.setBreadth(this->breadth + b.breadth);
+        out.setHeight(this->height += b.height);
+        return out;
+        
+    }
+
+private:
+    double length;      // Length of a box
+    double breadth;     // Breadth of a box
+    double height;      // Height of a box
+};
+
+int main() {
+    Box Box1;                // Declare Box1 of type Box
+    Box Box2;                // Declare Box2 of type Box
+    Box Box3;                // Declare Box3 of type Box
+    double volume = 0.0;     // Store the volume of a box here
+    // box 1 specification
+    Box1.setLength(6.0);
+    Box1.setBreadth(7.0);
+    Box1.setHeight(5.0);
+    // box 2 specification
+    Box2.setLength(12.0);
+    Box2.setBreadth(13.0);
+    Box2.setHeight(10.0);
+   
+    // volume of box 1
+    volume = Box1.getVolume();
+    cout << "Volume of Box1 : " << volume << endl;
+
+    // volume of box 2
+    volume = Box2.getVolume();
+    cout << "Volume of Box2 : " << volume << endl;
+
+    // Add two object as follows:
+    Box3 = Box1 + Box2;
+
+    // volume of box 3
+    volume = Box3.getVolume();
+    cout << "Volume of Box3 : " << volume << endl;
+
+    return 0;
+}
+
+```
+
+### 5-2
+Operator-Überladung:
+Vervollständigen Sie den folgenden Code:
+
+```cpp
+#include<iostream> 
+using namespace std;
+
+class Complex {
+private:
+	int real, imag;
+public:
+	Complex(int r = 0, int i = 0) { real = r;   imag = i; }
+
+	// This is automatically called when '+' is used with 
+	// between two Complex objects 
+	Complex operator + (Complex const &obj) {
+		//code here
+        Complex out;
+        out.real = this->real + obj.real;
+        out.imag = this->imag + obj.imag;
+		return out;
+	}
+	void print() { cout << real << " + i" << imag << endl; }
+};
+
+int main()
+{
+	Complex c1(10, 5), c2(2, 4);
+	Complex c3 = c1 + c2; // An example call to "operator+" 
+	c3.print();
+}
+
+```
+
+### 5-3
+Operator-Überladung
+Um das Thema zu begreifen, erstellen wir eine Klasse Integer mit nur einem Attribut value. 
+ 
+Auftrag:
+Fügen Sie noch den Increment-Operator hinzu:
+a)	Den pre-increment, damit a = ++x; funktioniert
+b)	Den post.increment, damit a = x--; funktioniert
+
+```cpp
+#include <iostream>
+#include "Integer.h"
+
+int main() {
+	Integer x = 8;
+	Integer y = 6;
+
+	Integer a, b, c, d;
+
+	a = x + y;
+	b = x - y;
+	c = x * y;
+	d = x / y;
+
+	std::cout << " a = " << a.getValue() << std::endl;
+	std::cout << " b = " << b.getValue() << std::endl;
+	std::cout << " c = " << c.getValue() << std::endl;
+	std::cout << " d = " << d.getValue() << std::endl;
+}
+
+// Integer.h
+#pragma once
+
+class Integer
+{
+private:
+    int value;
+public:
+    Integer(){};
+    Integer(int val);
+    int getValue(){return value;}
+
+    Integer operator+(Integer const &obj);
+    Integer operator-(Integer const &obj);
+    Integer operator*(Integer const &obj);
+    Integer operator/(Integer const &obj);
+    Integer operator++(int);
+    Integer operator++();
+};
+
+Integer::Integer(int val)
+{
+    value = val;
+}
+
+Integer Integer::operator+(Integer const &obj) {
+    Integer out;
+    out.value = this->value + obj.value;
+    return out;
+}
+
+Integer Integer::operator-(Integer const &obj) {
+    Integer out;
+    out.value = this->value - obj.value;
+    return out;
+}
+
+Integer Integer::operator*(Integer const &obj) {
+    Integer out;
+    out.value = this->value * obj.value;
+    return out;
+}
+
+Integer Integer::operator/(Integer const &obj) {
+    Integer out;
+    out.value = this->value / obj.value;
+    return out;
+}
+
+// prefix operator
+Integer Integer::operator++() {
+    Integer out;
+    out.value = value++;
+    return out;
+}
+
+// postfix operator
+Integer Integer::operator++(int) {
+    Integer out;
+    out.value = value++;
+    return out;
+}
+
+```
+
+### 5-4
+Function Pointer
+Vervollständigen Sie den untenstehenden Code um die folgende Ausgabe zu erhalten:
+Fun 1
+Fun 2
+
+```cpp
+#include <iostream>   
+
+// Two simple functions 
+void fun1() { printf("Fun1\n"); }
+void fun2() { printf("Fun2\n"); }
+
+// A function that receives a simple function as parameter and calls the function
+void wrapper(void (*fun)()) {
+    fun();
+}
+
+int main() {
+    wrapper(fun1);
+    wrapper(fun2);
+    return 0;
+}
+
+```
+
+### 5-5a
+Function object
+a.	Vervollständigen Sie den folgenden Code:
+
+```cpp
+#include <iostream>
+using namespace std;
+class MultBy {
+    int mult;
+public:
+    MultBy(int n) : mult(n) {}
+    int operator() (int n) { return mult * n; }
+};
+int main() {
+    //code here
+    MultBy a(4);
+    MultBy b(10);
+    MultBy c(15);
+
+    
+    std::cout << a(5) << std::endl;
+    std::cout << b(12) << std::endl;
+    std::cout << c(2) << std::endl;
+    //display 4 times 5 using function object MultBy
+    //display 10 times 12 using MultBy
+    //display 15 times 2 using MultBy
+}
+
+```
+
+### 5-5b
+b.	Vervollständigen Sie den folgenden Code:
+
+```cpp
+#include <iostream>
+
+class myFunctorClass
+{
+public:
+	myFunctorClass(int x) : _x(x) {}
+	int operator() (int y) { return _x + y; }
+private:
+	int _x;
+};
+
+int main()
+{
+	// add 5 with 6 using myFunctorClass
+	myFunctorClass out(5);
+    std::cout << out(6) << std::endl;
+	return 0;
+}
+
+```
+
+### 5-7
+decltype keyword
+
+Was ist die Ausgabe des folgenden Codes & warum?
+
+```cpp
+#include <iostream>
+using namespace std;
+
+int fun1() { return 10; }
+char fun2() { return 'g'; }
+
+int main()
+{
+    // Data type of x is same as return type of fun1()
+    // and type of y is same as return type of fun2()
+    decltype(fun1()) x;
+    decltype(fun2()) y;
+
+    cout << typeid(x).name() << endl;
+    cout << typeid(y).name() << endl;
+
+    return 0;
+}
+
+/* ----- OUTPUT -----  */
+// i (integer)
+// c (char)
+//  Data type is same as return type
+```
+
+### 5-8
+declval Keyword
+
+```cpp
+#include <utility>      // std::declval
+#include <iostream>     // std::cout
+using namespace std;
+
+class A {              // abstract class
+public:
+	virtual int value() = 0;
+};
+
+class B : public A {    // class with specific constructor
+	int val_;
+public:
+	B(int i, int j) :val_(i* j) {}
+	int value() { return val_; }
+};
+
+int main() {
+    decltype(declval<A>().value()) a;
+    decltype(declval<B>().value()) b;
+    decltype(B(0,0).value()) c;
+	//code here, please write 3 lines of code for the following purposes:
+	// a is an int object that invokes the value function from class A   
+	// b is an int object that invokes the value function from class B
+	// c uses the constructor of class B and has the initial values i=0 & j=0 
+	a = b = B(10, 2).value();
+	cout << a << '\n';
+	cout << c << '\n';
+	return 0;
+}
+
+```
+
+### 5-9
+Exception Handling
+Das Programm unten ergänzen, um die folgende Ausgabe zu erhalten:
+
+Before try
+Inside try
+Exception Caught
+After catch (Will be executed)
+
+```cpp
+#include <iostream> 
+using namespace std;   
+int main() 
+{ 
+   cout << "Before try\n"; 
+   try
+   {
+        cout << "Inside try\n";
+        unsigned int x = -1;  
+        throw out_of_range("int not negative");
+   }
+   catch(const exception &e)
+   {
+       cout << "exception caught" << endl;
+       std::cerr << e.what() << '\n';
+   }
+   
+    cout << "After exception" << endl;
+return 0; 
+}
+
+```
+
+### 5-10
+Exception Handling
+Was ist die Ausgabe des folgenden Programmes?
+
+```cpp
+#include <iostream> 
+using namespace std;   
+int main() { 
+    try  { 
+       throw 10; 
+      //throw ‘a’;
+    } 
+    catch (int x)  { 
+        cout << "Caught " << x; 
+    } 
+    catch (...)  { 
+        cout << "Default Exception\n"; 
+    } 
+    return 0; 
+}
+
+/* ----- OUTPUT ----- */
+// 10
+```
+
+### 5-11
+Exception Handling: Nested try-catch-blocks
+Ergänzen des Codes (unten) um die folgende Ausgabe zu erhalten:
+
+Handle partially
+Handle remaining
+
+```cpp
+
+#include <iostream> 
+using namespace std;   
+int main() 
+{ 
+    try { 
+        try  { 
+            throw 20; 
+        } catch(...) {
+            cout << "handle partially" << endl;
+            throw 10;
+        }
+    } catch(...) {
+            cout << "handle remainig" << endl;
+    }
+    return 0; 
+}
+
+```
+
+### 5-12
+Exception Handling
+Ergänzen des Codes (unten) um die folgende Ausgabe zu erhalten:
+
+Constructer of Test
+Destructor of Test
+Caught 10
+
+```cpp
+// Constructer of Test
+// Destructor of Test
+// Caught 10
+
+#include <iostream> 
+using namespace std;   
+class Test { 
+public: 
+   Test() { cout << "Constructor of Test " << endl; } 
+  ~Test() { cout << "Destructor of Test "  << endl; } 
+}; 
+
+int main() { 
+//code here  
+    try
+    {
+        Test a;
+        throw 10;
+    }
+    catch(int e)
+    {
+        std::cerr << "Caught " << e << '\n';
+    }
+    
+}
+
+```
+
+## PVA 6
+
+### 6-1
+Test
+
+```cpp
+
+```
+
+### 6-2
+Test
+
+```cpp
+
+```
+
+### 6-3
+Test
+
+```cpp
+
+```
+
+### 6-4
+Test
+
+```cpp
+
+```
+
+### 6-5
+Test
+
+```cpp
+
+```
+
+### 6-6
+Test
+
+```cpp
+
+```
+
+### 6-7
+Test
+
+```cpp
+
+```
+
+### 6-8
+Test
+
+```cpp
+
+```
+
+### 6-9
+Test
+
+```cpp
+
+```
+
+### 6-10
+Test
+
+```cpp
+
+```
+
+### 6-11
+Test
+
+```cpp
+
+```
+
+### 6-12
+Test
+
+```cpp
+
+```
+
+## PVA 7
+
+### 7-1
+Test
+
+```cpp
+
+```
+
+### 7-2
+Test
+
+```cpp
+
+```
+
+### 7-3
+Test
+
+```cpp
+
+```
+
+### 7-4
+Test
+
+```cpp
+
+```
+
+### 7-5
+Test
+
+```cpp
+
+```
+
+### 7-6
+Test
+
+```cpp
+
+```
+
+### 7-7
+Test
+
+```cpp
+
+```
+
+### 7-8
+Test
+
+```cpp
+
+```
+
+### 7-9
+Test
+
+```cpp
+
+```
+
+### 7-10
+Test
+
+```cpp
+
+```
+
+### 7-11
+Test
+
+```cpp
+
+```
+
+### 7-12
+Test
+
+```cpp
+
+```
+
+## PVA 8
+
+### 8-1
+Test
+
+```cpp
+
+```
+
+### 8-2
+Test
+
+```cpp
+
+```
+
+### 8-3
+Test
+
+```cpp
+
+```
+
+### 8-4
+Test
+
+```cpp
+
+```
+
+### 8-5
+Test
+
+```cpp
+
+```
+
+### 8-6
+Test
+
+```cpp
+
+```
+
+### 8-7
+Test
+
+```cpp
+
+```
+
+### 8-8
+Test
+
+```cpp
+
+```
+
+### 8-9
+Test
+
+```cpp
+
+```
+
+### 8-10
+Test
+
+```cpp
+
+```
+
+### 8-11
+Test
+
+```cpp
+
+```
+
+### 8-12
+Test
+
+```cpp
+
+```
+
+## PVA 9
+
+### 9-1
+Test
+
+```cpp
+
+```
+
+### 9-2
+Test
+
+```cpp
+
+```
+
+### 9-3
+Test
+
+```cpp
+
+```
+
+### 9-4
+Test
+
+```cpp
+
+```
+
+### 9-5
+Test
+
+```cpp
+
+```
+
+### 9-6
+Test
+
+```cpp
+
+```
+
+### 9-7
+Test
+
+```cpp
+
+```
+
+### 9-8
+Test
+
+```cpp
+
+```
+
+### 9-9
+Test
+
+```cpp
+
+```
+
+### 9-10
+Test
+
+```cpp
+
+```
+
+### 9-11
+Test
+
+```cpp
+
+```
+
+### 9-12
+Test
+
+```cpp
+
+```
