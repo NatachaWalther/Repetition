@@ -966,6 +966,27 @@ int main() {
 
 ## PVA 2
 
+### 2-1
+Vergleich Geschwindigkeit 2 Programme mit und ohne constexpr. Fibonacci
+
+```cpp
+#include<iostream> 
+using namespace std; 
+  
+constexpr long int fib(int n) 
+{
+    return (n <= 1) ? n : fib(n - 1) + fib(n - 2);
+} 
+  
+int main () 
+{ 
+    // value of res is computed at compile time.  
+    const long int res = fib(40); 
+    cout << res; 
+    return 0; 
+} 
+```
+
 ### 2-2
 
 Schreiben Sie eine Funktion int dauerInSekunden(int stunden, int minuten, int
@@ -1050,6 +1071,117 @@ long fakultaet(int n)
   return n * fakultaet(n - 1);
 }
 ```
+
+### 2-5
+Copy Constructor: Vervollständigen Sie den folgenden Code:
+
+```cpp
+#include<iostream> 
+using namespace std; 
+  
+class Point 
+{ 
+private: 
+    int x, y; 
+public: 
+    Point(int x1, int y1) { x = x1; y = y1; } 
+  
+    // Copy constructor 
+    Point(const Point &p2) {x = p2.x; y = p2.y; } 
+  
+    int getX()            {  return x; } 
+    int getY()            {  return y; } 
+}; 
+  
+int main() 
+{ 
+    Point p1(10, 15); // Normal constructor is called here 
+    Point p2 = p1; // Copy constructor is called here 
+  
+    // Let us access values assigned by constructors 
+    // code here
+    std::cout << "x: " << p1.getX() << " y: " << p1.getY() << endl;	
+    std::cout << "x: " << p2.getX() << " y: " << p2.getY() << endl;	
+  
+    return 0; 
+}
+```
+
+### 2-6
+Destructor: Vervollständigen Sie die Aufgabe P2-3 mit einem Class destructor und bestätigen Sie dies, indem die Ausgabe mit dem folgenden Satz: «object is deleted» ergänzt wird.  
+
+```cpp
+#include <iostream> 
+using namespace std; 
+  
+class construct { 
+public: 
+    int a, b; 
+  
+    // Default Constructor 
+    construct () 
+    { 
+        a = 10; 
+        b = 20; 
+    } 
+
+    ~construct (){
+        std::cout << "object is deleted";
+    }
+}; 
+  
+int main() 
+{ 
+    // display a, b
+    // code here
+    construct obj;
+    std::cout << obj.a << "\n" << obj.b << endl;
+     
+    return 0; 
+} 
+```
+
+### 2-7
+Vervollständigen den folgenden Code so, dass Sie diese Ausgabe erhalten:
+
+Ausgabe: 
+Assignment operator called
+Copy constructor called
+
+```cpp
+#include<iostream>  
+#include<stdio.h>  
+  
+using namespace std;  
+  
+class Test  
+{  
+    public:  
+    Test() {}  
+    Test(const Test &t)  
+    {  
+        cout<<"Copy constructor called "<<endl;  
+    }  
+      
+    Test& operator = (const Test &t) 
+    { 
+        cout<<"Assignment operator called "<<endl; 
+        return *this; 
+    }  
+};  
+  
+// Driver code 
+int main()  
+{  
+    //code here  
+    Test x;
+    Test y;
+    y = x;
+    Test b = x;
+
+}  
+```
+
 ### 2-8
 
 2.8 Schreiben Sie eine Funktion istAlphanumerisch(const string& text), die true 
@@ -1091,6 +1223,7 @@ bool istAlphanumerisch(const std::string& text)
   return ergebnis;
 }
 ```
+
 ### 3-1
 Schreiben Sie eine Klasse Person, die nur die Attribute Name (Typ std::string) und
 Alter (Typ int) hat. Die Klasse soll die Methoden getName() und getAlter() zum Abfragen der Attribute enthalten. setName(const std::string& neuer Name) und setAlter(int
